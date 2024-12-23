@@ -90,7 +90,6 @@ function NewMeeting() {
 	useEffect(() => {
 		document.title = "ThisAppointment";
 		localStorage.setItem("newMeetingData", JSON.stringify(formData));
-		console.log(formData, "<---Form data--------");
 	}, [formData]);
 
 	const handleMeetingStationChange = (index, field, value) => {
@@ -173,13 +172,16 @@ function NewMeeting() {
 		e.preventDefault();
 
 		const alreadyAdded = copyOfMeetingStations.some(
-			(stationObject) => stationObject.station === inputBoxValue,
+			(stationObject) => stationObject.station.station_name === inputBoxValue,
+		);
+		const station = stations.find(
+			(station) => station.station_name === inputBoxValue,
 		);
 		if (!alreadyAdded && inputBoxValue.trim()) {
 			// Check if inputBoxValue is not empty or just whitespace
 			setCopyOfMeetingStations([
 				...copyOfMeetingStations,
-				{ station: inputBoxValue },
+				{ station: station },
 			]);
 			setInputBoxValue("");
 		} else if (!inputBoxValue.trim()) {
@@ -223,8 +225,8 @@ function NewMeeting() {
 								/>
 								<datalist id="stations-list">
 									{filteredStations.map((station, index) => (
-										<option key={index} value={station.crs_code}>
-											{station.station_name}
+										<option key={index} value={station.station_name}>
+											{station.crs_code}
 										</option>
 									))}
 								</datalist>
@@ -234,8 +236,7 @@ function NewMeeting() {
 										{copyOfMeetingStations.map((stationObject, index) => {
 											return (
 												<li key={index}>
-													{console.log(stationObject, "<---station object")}
-													{stationObject.station}
+													{stationObject.station.station_name}
 													<button onClick={(e) => deleteStation(e, index)}>
 														Delete
 													</button>
