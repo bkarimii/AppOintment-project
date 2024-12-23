@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { isArray } from "chart.js/helpers";
@@ -7,15 +8,29 @@ import "./NewMeeting.css";
 import { useNavigate } from "react-router-dom";
 
 function NewMeeting() {
+	// New variables for second phase //
+	const [inputBoxValue, setInputBoxValue] = useState("");
+	const [filteredStations, setFilteredStations] = useState([]); // Filtered stations based on search
+	// const [copyOfMeetingStations,setCopyOfMeetingStations]=useState([]);
+
+	//////////////////////////////////////////
 	const [stations, setStations] = useState([]);
 	const [helpIconToggle, setHelpIconToggle] = useState(false);
 	const [formData, setFormData] = useState(() => {
 		const savedData = JSON.parse(localStorage.getItem("newMeetingData"));
-		if (savedData && !isArray(savedData.meetingStation)) {
+		if (
+			savedData &&
+			!isArray(savedData.meetingStation) &&
+			!isArray(savedData.copyOfMeetingStations)
+		) {
 			savedData.meetingStation = [{ station: savedData.meetingStation }];
+			savedData.copyOfMeetingStations = [
+				{ station: savedData.copyOfMeetingStations },
+			];
 		}
 		return (
 			savedData || {
+				copyOfMeetingStations: [{ station: "" }],
 				meetingStation: [{ station: "" }],
 				meetingDate: "",
 				earliestStartTime: "",
@@ -25,6 +40,12 @@ function NewMeeting() {
 			}
 		);
 	});
+
+	// New variable
+	const [copyOfMeetingStations, setCopyOfMeetingStations] = useState(
+		formData.copyOfMeetingStations,
+	);
+	//============================
 	const [meetingStation, setMeetingStation] = useState(formData.meetingStation);
 	const [meetingDate, setMeetingDate] = useState(formData.meetingDate);
 	const [earliestStartTime, setEarliestStartTime] = useState(
@@ -46,6 +67,7 @@ function NewMeeting() {
 	useEffect(() => {
 		const updateFormData = () => {
 			setFormData({
+				copyOfMeetingStations,
 				meetingStation,
 				meetingDate,
 				earliestStartTime,
@@ -54,9 +76,9 @@ function NewMeeting() {
 				intervalTime,
 			});
 		};
-
 		updateFormData();
 	}, [
+		copyOfMeetingStations,
 		meetingStation,
 		meetingDate,
 		earliestStartTime,
@@ -68,6 +90,7 @@ function NewMeeting() {
 	useEffect(() => {
 		document.title = "ThisAppointment";
 		localStorage.setItem("newMeetingData", JSON.stringify(formData));
+		console.log(formData, "<---Form data--------");
 	}, [formData]);
 
 	const handleMeetingStationChange = (index, field, value) => {
@@ -130,6 +153,51 @@ function NewMeeting() {
 		setHelpIconToggle(!helpIconToggle);
 	};
 
+	/* ======================================================================= */
+
+	const handleStationSelect = (station) => {
+		setInputBoxValue(station); // Update input box with the selected station
+	};
+
+	const handleInputChange = (e) => {
+		const value = e.target.value;
+		setInputBoxValue(value);
+		// Filter the stations based on the input value
+		const matches = stations.filter((stationObject) =>
+			stationObject.station_name.toLowerCase().includes(value.toLowerCase()),
+		);
+		setFilteredStations(matches);
+	};
+
+	const addStation = (e) => {
+		e.preventDefault();
+
+		const alreadyAdded = copyOfMeetingStations.some(
+			(stationObject) => stationObject.station === inputBoxValue,
+		);
+		if (!alreadyAdded && inputBoxValue.trim()) {
+			// Check if inputBoxValue is not empty or just whitespace
+			setCopyOfMeetingStations([
+				...copyOfMeetingStations,
+				{ station: inputBoxValue },
+			]);
+			setInputBoxValue("");
+		} else if (!inputBoxValue.trim()) {
+			alert("Empty value is not allowed!");
+		} else if (alreadyAdded) {
+			alert("Duplicate station!");
+		}
+	};
+
+	const deleteStation = (e, index) => {
+		e.preventDefault();
+		const updatedMeetingStations = copyOfMeetingStations.filter(
+			(_, i) => i !== index,
+		);
+		setCopyOfMeetingStations(updatedMeetingStations);
+	};
+	/* ======================================================================= */
+
 	return (
 		<>
 			<div id="page-container">
@@ -141,6 +209,44 @@ function NewMeeting() {
 							<label id="list-heading" htmlFor="stn-list">
 								Meeting Station List
 							</label>
+							{/* ======================================================================= */}
+							{/* Adding new code to use an input box to  add stations instead of a dropdwon-list  */}
+							<div id="input-box-container" style={{ marginBottom: "1rem" }}>
+								<label htmlFor="station-list-input-box">Add a station:</label>
+								<input
+									type="text"
+									id="station-list-input-box"
+									value={inputBoxValue}
+									onChange={handleInputChange}
+									list="stations-list"
+									aria-haspopup="listbox" // Accessibility: indicates a dropdown is available
+								/>
+								<datalist id="stations-list">
+									{filteredStations.map((station, index) => (
+										<option key={index} value={station.crs_code}>
+											{station.station_name}
+										</option>
+									))}
+								</datalist>
+								<button onClick={addStation}>Add</button>
+								<div>
+									<ul>
+										{copyOfMeetingStations.map((stationObject, index) => {
+											return (
+												<li key={index}>
+													{console.log(stationObject, "<---station object")}
+													{stationObject.station}
+													<button onClick={(e) => deleteStation(e, index)}>
+														Delete
+													</button>
+												</li>
+											);
+										})}
+									</ul>
+								</div>
+							</div>
+
+							{/* ======================================================================= */}
 							<div id="station-list">
 								<ul id="stn-list">
 									{meetingStation.map((station, index) => (
