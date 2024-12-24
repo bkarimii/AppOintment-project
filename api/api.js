@@ -106,7 +106,7 @@ api.get("/station-list", async (req, res) => {
 
 export async function fetchBodyMaker(body) {
 	try {
-		const arrayOfDestination = body.meetingStation;
+		const arrayOfDestination = body.copyOfMeetingStations;
 		const destinations = [];
 		const origins = [];
 		const arrayOfOriginStationCrs = body.attendees;
@@ -119,7 +119,7 @@ export async function fetchBodyMaker(body) {
 			// Find destination station in JSON data
 			const destinationsDBDetail = await db.query(
 				"SELECT * FROM uk_stations WHERE crs_code = $1",
-				[eachDestinationCrs.station],
+				[eachDestinationCrs.station.crs_code],
 			);
 			if (destinationsDBDetail.rows.length === 0) {
 				throw new Error("Destination CRS code not found.");
@@ -128,7 +128,7 @@ export async function fetchBodyMaker(body) {
 			const destinationObject = {
 				latitude: destinationsDBDetail.rows[0].latitude,
 				longitude: destinationsDBDetail.rows[0].longitude,
-				stationCrs: eachDestinationCrs.station,
+				stationCrs: eachDestinationCrs.station.crs_code,
 				stationName: destinationsDBDetail.rows[0].station_name,
 			};
 
