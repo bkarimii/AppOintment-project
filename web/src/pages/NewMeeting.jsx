@@ -90,7 +90,6 @@ function NewMeeting() {
 	useEffect(() => {
 		document.title = "ThisAppointment";
 		localStorage.setItem("newMeetingData", JSON.stringify(formData));
-		console.log(formData, "<---Form data--------");
 	}, [formData]);
 
 	console.log(formData, "<-------");
@@ -243,6 +242,7 @@ function NewMeeting() {
 										{copyOfMeetingStations.map((stationObject, index) => {
 											return (
 												<li key={index}>
+													{stationObject.station.station_name}
 													{stationObject.station.station_name}
 													<button onClick={(e) => deleteStation(e, index)}>
 														Delete
