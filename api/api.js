@@ -106,6 +106,7 @@ api.get("/station-list", async (req, res) => {
 
 export async function fetchBodyMaker(body) {
 	try {
+		//Using copyOfMeetingStation instead of meetingStation
 		const arrayOfDestination = body.copyOfMeetingStations;
 		const destinations = [];
 		const origins = [];
