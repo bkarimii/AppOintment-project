@@ -18,12 +18,7 @@ function NewMeeting() {
 	const [helpIconToggle, setHelpIconToggle] = useState(false);
 	const [formData, setFormData] = useState(() => {
 		const savedData = JSON.parse(localStorage.getItem("newMeetingData"));
-		if (
-			savedData &&
-			!isArray(savedData.meetingStation) &&
-			!isArray(savedData.copyOfMeetingStations)
-		) {
-			savedData.meetingStation = [{ station: savedData.meetingStation }];
+		if (savedData && !isArray(savedData.copyOfMeetingStations)) {
 			savedData.copyOfMeetingStations = [
 				{ station: savedData.copyOfMeetingStations },
 			];
@@ -31,7 +26,6 @@ function NewMeeting() {
 		return (
 			savedData || {
 				copyOfMeetingStations: [{ station: "" }],
-				meetingStation: [{ station: "" }],
 				meetingDate: "",
 				earliestStartTime: "",
 				latestStartTime: "",
@@ -46,7 +40,7 @@ function NewMeeting() {
 		formData.copyOfMeetingStations,
 	);
 	//============================
-	const [meetingStation, setMeetingStation] = useState(formData.meetingStation);
+	// const [meetingStation, setMeetingStation] = useState(formData.meetingStation);
 	const [meetingDate, setMeetingDate] = useState(formData.meetingDate);
 	const [earliestStartTime, setEarliestStartTime] = useState(
 		formData.earliestStartTime,
@@ -68,7 +62,6 @@ function NewMeeting() {
 		const updateFormData = () => {
 			setFormData({
 				copyOfMeetingStations,
-				meetingStation,
 				meetingDate,
 				earliestStartTime,
 				latestStartTime,
@@ -79,7 +72,6 @@ function NewMeeting() {
 		updateFormData();
 	}, [
 		copyOfMeetingStations,
-		meetingStation,
 		meetingDate,
 		earliestStartTime,
 		latestStartTime,
@@ -92,22 +84,20 @@ function NewMeeting() {
 		localStorage.setItem("newMeetingData", JSON.stringify(formData));
 	}, [formData]);
 
-	console.log(formData, "<-------");
+	// const handleMeetingStationChange = (index, field, value) => {
+	// 	const updatedMeetingStation = [...meetingStation];
+	// 	updatedMeetingStation[index][field] = value;
+	// 	setMeetingStation(updatedMeetingStation);
+	// };
 
-	const handleMeetingStationChange = (index, field, value) => {
-		const updatedMeetingStation = [...meetingStation];
-		updatedMeetingStation[index][field] = value;
-		setMeetingStation(updatedMeetingStation);
-	};
+	// const addMeetingStation = () => {
+	// 	setMeetingStation([...meetingStation, { station: "" }]);
+	// };
 
-	const addMeetingStation = () => {
-		setMeetingStation([...meetingStation, { station: "" }]);
-	};
-
-	const deleteMeetingStation = (index) => {
-		const updatedMeetingStation = meetingStation.filter((_, i) => i !== index);
-		setMeetingStation(updatedMeetingStation);
-	};
+	// const deleteMeetingStation = (index) => {
+	// 	const updatedMeetingStation = meetingStation.filter((_, i) => i !== index);
+	// 	setMeetingStation(updatedMeetingStation);
+	// };
 
 	const handleMeetingChange = (field, value) => {
 		switch (field) {
@@ -255,113 +245,6 @@ function NewMeeting() {
 							</div>
 
 							{/* ======================================================================= */}
-							<div id="station-list">
-								<ul id="stn-list">
-									{meetingStation.map((station, index) => (
-										<li className="station-li" key={index}>
-											<div className="form-group station-code-group">
-												<select
-													name="meetingStation"
-													id={"meeting-station" + index}
-													value={station.station}
-													onChange={(e) =>
-														handleMeetingStationChange(
-															index,
-															"station",
-															e.target.value,
-														)
-													}
-													required
-													aria-required="true"
-												>
-													<option value="" disabled>
-														Select a station
-													</option>
-													{stations.map((station, idx) => (
-														<option key={idx} value={station.crs_code}>
-															{station.station_name}
-														</option>
-													))}
-												</select>
-												<label htmlFor={"meeting-station" + index}>
-													Station
-												</label>
-											</div>
-											<button
-												className="delete-button"
-												onClick={() => deleteMeetingStation(index)}
-												style={{ display: "flex", alignItems: "center" }}
-												name="delete-station"
-											>
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													width="30"
-													height="30"
-													viewBox="0 0 64 64"
-												>
-													<rect
-														x="16"
-														y="22"
-														width="32"
-														height="34"
-														fill="black"
-														rx="4"
-													/>
-													<rect
-														x="12"
-														y="16"
-														width="40"
-														height="5"
-														fill="black"
-														rx="2"
-													/>
-													<rect
-														x="24"
-														y="11"
-														width="16"
-														height="6"
-														fill="black"
-														rx="2"
-													/>
-													<rect
-														x="22"
-														y="27"
-														width="4"
-														height="24"
-														fill="white"
-													/>
-													<rect
-														x="30"
-														y="27"
-														width="4"
-														height="24"
-														fill="white"
-													/>
-													<rect
-														x="38"
-														y="27"
-														width="4"
-														height="24"
-														fill="white"
-													/>
-												</svg>
-											</button>
-										</li>
-									))}
-								</ul>
-
-								<button
-									id="add-station-button"
-									type="button"
-									onClick={addMeetingStation}
-									name="add-station"
-								>
-									<span style={{ fontSize: "18px", marginRight: "5px" }}>
-										+
-									</span>
-									Add Station
-								</button>
-							</div>
 						</div>
 
 						<div className="form-group">
