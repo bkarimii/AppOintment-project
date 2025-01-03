@@ -10,10 +10,8 @@ import { useNavigate } from "react-router-dom";
 function NewMeeting() {
 	// New variables for second phase //
 	const [inputBoxValue, setInputBoxValue] = useState("");
-	const [filteredStations, setFilteredStations] = useState([]); // Filtered stations based on search
-	// const [copyOfMeetingStations,setCopyOfMeetingStations]=useState([]);
+	const [filteredStations, setFilteredStations] = useState([]);
 
-	//////////////////////////////////////////
 	const [stations, setStations] = useState([]);
 	const [helpIconToggle, setHelpIconToggle] = useState(false);
 	const [formData, setFormData] = useState(() => {
@@ -40,12 +38,9 @@ function NewMeeting() {
 		);
 	});
 
-	// New variable
 	const [copyOfMeetingStations, setCopyOfMeetingStations] = useState(
 		formData.copyOfMeetingStations,
 	);
-	//============================
-	// const [meetingStation, setMeetingStation] = useState(formData.meetingStation);
 	const [meetingDate, setMeetingDate] = useState(formData.meetingDate);
 	const [earliestStartTime, setEarliestStartTime] = useState(
 		formData.earliestStartTime,
@@ -73,6 +68,7 @@ function NewMeeting() {
 			.then((response) => response.json())
 			.then((stationList) => {
 				setStations(stationList);
+				// Now that we have stations, we can set the correct input values
 				const initialInputValues = formData.attendees.map((attendee) => {
 					if (attendee.station) {
 						const station = stationList.find(
@@ -110,22 +106,8 @@ function NewMeeting() {
 	useEffect(() => {
 		document.title = "ThisAppointment";
 		localStorage.setItem("newMeetingData", JSON.stringify(formData));
+		console.log(formData, "<------Form data");
 	}, [formData]);
-
-	// const handleMeetingStationChange = (index, field, value) => {
-	// 	const updatedMeetingStation = [...meetingStation];
-	// 	updatedMeetingStation[index][field] = value;
-	// 	setMeetingStation(updatedMeetingStation);
-	// };
-
-	// const addMeetingStation = () => {
-	// 	setMeetingStation([...meetingStation, { station: "" }]);
-	// };
-
-	// const deleteMeetingStation = (index) => {
-	// 	const updatedMeetingStation = meetingStation.filter((_, i) => i !== index);
-	// 	setMeetingStation(updatedMeetingStation);
-	// };
 
 	const handleMeetingChange = (field, value) => {
 		switch (field) {
@@ -141,7 +123,6 @@ function NewMeeting() {
 			case "intervalTime":
 				setIntervalTime(value);
 				break;
-
 			default:
 				break;
 		}
@@ -149,18 +130,58 @@ function NewMeeting() {
 
 	const handleAttendeeChange = (index, field, value) => {
 		const updatedAttendees = [...attendees];
-		updatedAttendees[index][field] = value;
-		setAttendees(updatedAttendees);
+		if (field === "name") {
+			updatedAttendees[index][field] = value;
+			setAttendees(updatedAttendees);
+		} else if (field === "station") {
+			// Update the input value
+			const updatedInputValues = [...attendeeInputValues];
+			updatedInputValues[index] = value;
+			setAttendeeInputValues(updatedInputValues);
+
+			// Check if the value exactly matches a station name
+			const exactMatch = stations.find(
+				(station) => station.station_name === value,
+			);
+
+			if (exactMatch) {
+				// If exact match, clear suggestions and update the attendee's station
+				updatedAttendees[index].station = exactMatch.crs_code;
+				setAttendees(updatedAttendees);
+
+				const updatedFilteredStations = [...filteredAttendeeStations];
+				updatedFilteredStations[index] = []; // Clear suggestions
+				setFilteredAttendeeStations(updatedFilteredStations);
+			} else {
+				// If no exact match, show filtered suggestions
+				const matches = stations.filter((station) =>
+					station.station_name.toLowerCase().includes(value.toLowerCase()),
+				);
+				const updatedFilteredStations = [...filteredAttendeeStations];
+				updatedFilteredStations[index] = matches;
+				setFilteredAttendeeStations(updatedFilteredStations);
+			}
+		}
 	};
 
 	const addAttendee = () => {
 		setAttendees([...attendees, { name: "", station: "" }]);
+		setAttendeeInputValues([...attendeeInputValues, ""]);
+		setFilteredAttendeeStations([...filteredAttendeeStations, []]);
 	};
 
 	const deleteAttendee = (index) => (e) => {
 		e.preventDefault();
 		const updatedAttendees = attendees.filter((_, i) => i !== index);
+		const updatedInputValues = attendeeInputValues.filter(
+			(_, i) => i !== index,
+		);
+		const updatedFilteredStations = filteredAttendeeStations.filter(
+			(_, i) => i !== index,
+		);
 		setAttendees(updatedAttendees);
+		setAttendeeInputValues(updatedInputValues);
+		setFilteredAttendeeStations(updatedFilteredStations);
 	};
 
 	const handleSubmit = (e) => {
@@ -175,30 +196,33 @@ function NewMeeting() {
 	const handleInputChange = (e) => {
 		const value = e.target.value;
 		setInputBoxValue(value);
-		// Filter the stations based on the input value
-		const matches = stations.filter((stationObject) =>
-			stationObject.station_name.toLowerCase().includes(value.toLowerCase()),
+
+		// If the value exactly matches a station name, clear the filtered stations
+		const exactMatch = stations.find(
+			(station) => station.station_name === value,
 		);
-		setFilteredStations(matches);
+		if (exactMatch) {
+			setFilteredStations([]);
+		} else {
+			// Otherwise, show filtered suggestions
+			const matches = stations.filter((stationObject) =>
+				stationObject.station_name.toLowerCase().includes(value.toLowerCase()),
+			);
+			setFilteredStations(matches);
+		}
 	};
 
 	const addStation = (e) => {
 		e.preventDefault();
 
 		const alreadyAdded = copyOfMeetingStations.some(
-			// (stationObject) => stationObject.station === inputBoxValue,
 			(stationObject) => stationObject.station.station_name === inputBoxValue,
 		);
 		const station = stations.find(
 			(station) => station.station_name === inputBoxValue,
 		);
 		if (!alreadyAdded && inputBoxValue.trim()) {
-			// Check if inputBoxValue is not empty or just whitespace
-			setCopyOfMeetingStations([
-				...copyOfMeetingStations,
-				// { station: inputBoxValue },
-				{ station },
-			]);
+			setCopyOfMeetingStations([...copyOfMeetingStations, { station }]);
 			setInputBoxValue("");
 		} else if (!inputBoxValue.trim()) {
 			alert("Empty value is not allowed!");
@@ -214,8 +238,8 @@ function NewMeeting() {
 		);
 		setCopyOfMeetingStations(updatedMeetingStations);
 	};
-	/* ======================================================================= */
 
+	// =======================================================================
 	return (
 		<>
 			<div id="page-container">
@@ -227,8 +251,6 @@ function NewMeeting() {
 							<label id="list-heading" htmlFor="stn-list">
 								Meeting Station List
 							</label>
-							{/* ======================================================================= */}
-							{/* Adding new code to use an input box to  add stations instead of a dropdwon-list  */}
 							<div id="input-box-container" style={{ marginBottom: "1rem" }}>
 								<label htmlFor="station-list-input-box">Add a station:</label>
 								<input
@@ -237,12 +259,10 @@ function NewMeeting() {
 									value={inputBoxValue}
 									onChange={handleInputChange}
 									list="stations-list"
-									aria-haspopup="listbox" // Accessibility: indicates a dropdown is available
+									aria-haspopup="listbox"
 								/>
 								<datalist id="stations-list">
 									{filteredStations.map((station, index) => (
-										// <option key={index} value={station.crs_code}>
-										// 	{station.station_name}
 										<option key={index} value={station.station_name}>
 											{station.crs_code}
 										</option>
@@ -255,7 +275,6 @@ function NewMeeting() {
 											return (
 												<li key={index}>
 													{stationObject.station.station_name}
-													{stationObject.station.station_name}
 													<button onClick={(e) => deleteStation(e, index)}>
 														Delete
 													</button>
@@ -265,8 +284,6 @@ function NewMeeting() {
 									</ul>
 								</div>
 							</div>
-
-							{/* ======================================================================= */}
 						</div>
 
 						<div className="form-group">
@@ -343,10 +360,10 @@ function NewMeeting() {
 												<label htmlFor={"attendee-name" + index}>Name</label>
 											</div>
 											<div className="form-group attendee-station-group">
-												<select
-													name="attendeesStation"
-													id={"attendees-station" + index}
-													value={attendees[index].station}
+												<input
+													type="text"
+													id={`attendee-station-input-${index}`}
+													value={attendeeInputValues[index]}
 													onChange={(e) =>
 														handleAttendeeChange(
 															index,
@@ -354,18 +371,20 @@ function NewMeeting() {
 															e.target.value,
 														)
 													}
+													list={`stations-list-${index}`}
+													placeholder=" "
 													required
-												>
-													<option value="" disabled>
-														Select a station
-													</option>
-													{stations.map((station, idx) => (
-														<option key={idx} value={station.crs_code}>
-															{station.station_name}
-														</option>
-													))}
-												</select>
-												<label htmlFor={"attendees-station" + index}>
+												/>
+												<datalist id={`stations-list-${index}`}>
+													{filteredAttendeeStations[index].map(
+														(station, idx) => (
+															<option key={idx} value={station.station_name}>
+																{station.crs_code}
+															</option>
+														),
+													)}
+												</datalist>
+												<label htmlFor={`attendee-station-input-${index}`}>
 													Station
 												</label>
 											</div>
@@ -389,7 +408,6 @@ function NewMeeting() {
 														fill="red"
 														rx="4"
 													/>
-
 													<rect
 														x="12"
 														y="16"
@@ -398,7 +416,6 @@ function NewMeeting() {
 														fill="black"
 														rx="2"
 													/>
-
 													<rect
 														x="24"
 														y="11"
@@ -407,7 +424,6 @@ function NewMeeting() {
 														fill="inherit"
 														rx="2"
 													/>
-
 													<rect
 														x="22"
 														y="27"
@@ -478,12 +494,12 @@ function NewMeeting() {
 								<h3 id="help-title">How to Fill the Form</h3>
 								<p>
 									<strong>Meeting Station:</strong> Choose the station where the
-									meeting will take place from the dropdown menu. If the
-									stations is not listed, please check back later.
+									meeting will take place. Type in the station name and select
+									from the suggestions.
 								</p>
 								<p>
 									<strong>Meeting Date:</strong> Select the date of the meeting
-									using the date picker or import manually.
+									using the date picker or input manually.
 								</p>
 								<p>
 									<strong>Earliest Start Time:</strong> Specify the earliest
@@ -494,17 +510,14 @@ function NewMeeting() {
 									you can start the meeting.
 								</p>
 								<h4>Attendee List:</h4>
-								<p>
-									Enter the names and select the stations for each attendee:
-								</p>
+								<p>Enter the names and stations for each attendee:</p>
 								<ul>
 									<li>
 										<strong>Name:</strong> Enter the full name of the attendee.
 									</li>
 									<li>
-										<strong>Station:</strong> Select the station from the
-										dropdown menu that corresponds to the attendee&lsquo;s
-										location.
+										<strong>Station:</strong> Type in the station name and
+										select from the suggestions that appear.
 									</li>
 								</ul>
 								<p>
@@ -529,4 +542,5 @@ function NewMeeting() {
 NewMeeting.propTypes = {
 	onFormSubmit: PropTypes.func,
 };
+
 export default NewMeeting;
