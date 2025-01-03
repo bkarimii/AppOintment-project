@@ -5,15 +5,9 @@ import app from "./app.js";
 describe("/api", () => {
 	describe("POST /compute-route", () => {
 		const body = {
-			meetingStation: [
-				{
-					name: "eus",
-					station: "EUS",
-				},
-				{
-					name: "abw",
-					station: "ABW",
-				},
+			copyOfMeetingStations: [
+				{ station: { crs_code: "EUS", name: "London Euston" } },
+				{ station: { crs_code: "ABW", name: "Abbey Wood" } },
 			],
 			meetingDate: "2024-12-20",
 			earliestStartTime: "05:29",
