@@ -293,3 +293,13 @@ form {
 		padding: 10px;
 	}
 }
+
+.meeting-list-item {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	border: solid 1px #ccc;
+	padding: 8px;
+	border-radius: 8px;
+}
