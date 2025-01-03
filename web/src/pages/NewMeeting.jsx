@@ -18,10 +18,15 @@ function NewMeeting() {
 	const [helpIconToggle, setHelpIconToggle] = useState(false);
 	const [formData, setFormData] = useState(() => {
 		const savedData = JSON.parse(localStorage.getItem("newMeetingData"));
-		if (savedData && !isArray(savedData.copyOfMeetingStations)) {
-			savedData.copyOfMeetingStations = [
-				{ station: savedData.copyOfMeetingStations },
-			];
+		if (savedData) {
+			if (!isArray(savedData.copyOfMeetingStations)) {
+				savedData.copyOfMeetingStations = [
+					{ station: savedData.copyOfMeetingStations },
+				];
+			}
+			if (!isArray(savedData.attendees)) {
+				savedData.attendees = [{ name: "", station: "" }];
+			}
 		}
 		return (
 			savedData || {
@@ -50,13 +55,36 @@ function NewMeeting() {
 	);
 	const [attendees, setAttendees] = useState(formData.attendees);
 	const [intervalTime, setIntervalTime] = useState(formData.intervalTime);
+
+	// Initialize with empty values first
+	const [attendeeInputValues, setAttendeeInputValues] = useState(
+		formData.attendees.map(() => ""),
+	);
+
+	const [filteredAttendeeStations, setFilteredAttendeeStations] = useState(
+		formData.attendees.map(() => []),
+	);
+
 	const navigate = useNavigate();
 
+	// Fetch stations and update attendeeInputValues when stations are loaded
 	useEffect(() => {
 		fetch("/api/station-list")
 			.then((response) => response.json())
-			.then((stationList) => setStations(stationList));
-	}, []);
+			.then((stationList) => {
+				setStations(stationList);
+				const initialInputValues = formData.attendees.map((attendee) => {
+					if (attendee.station) {
+						const station = stationList.find(
+							(s) => s.crs_code === attendee.station,
+						);
+						return station ? station.station_name : "";
+					}
+					return "";
+				});
+				setAttendeeInputValues(initialInputValues);
+			});
+	}, [formData.attendees]);
 
 	useEffect(() => {
 		const updateFormData = () => {
@@ -142,12 +170,6 @@ function NewMeeting() {
 
 	const handleHelpButton = () => {
 		setHelpIconToggle(!helpIconToggle);
-	};
-
-	/* ======================================================================= */
-
-	const handleStationSelect = (station) => {
-		setInputBoxValue(station); // Update input box with the selected station
 	};
 
 	const handleInputChange = (e) => {
