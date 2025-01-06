@@ -25,6 +25,8 @@ jobs:
           - 5432:5432
     env:
       DATABASE_URL: postgres://testdb:keepitsecret@localhost:5432/testdb
+      GOOGLE_MAPS_API_KEY_TWO: DUMMY
+      USE_LIVE_DATA: false
     steps:
       - uses: textbook/take-action@nodejs
         with:
