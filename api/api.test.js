@@ -46,6 +46,9 @@ describe("/api", () => {
 		it("returns a successful response with expected structure", async () => {
 			const response = await request(app).post("/api/compute-route").send(body);
 
+			/* eslint-disable-next-line no-console */
+			console.log(response);
+
 			// Test Comment
 			// expect(response.status).toBe(200);
 
