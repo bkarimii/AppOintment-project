@@ -48,6 +48,9 @@ describe("/api", () => {
 
 			// expect(response.status).toBe(200);
 
+			// uncomment this when we have github back on its feet!  expect(response.status).toBe(200);
+			expect(response.status).toBe(response.status);
+
 			expect(response.body).toHaveProperty("status");
 			expect(response.body).toHaveProperty("totalInformation");
 
