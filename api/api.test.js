@@ -58,7 +58,7 @@ describe("/api", () => {
 		it("returns an array of travel stats", async () => {
 			const response = await request(app).post("/api/compute-route").send(body);
 
-			// uncomment this when we have github back on its feet!  expect(response.status).toBe(200);
+			expect(response.status).toBe(200);
 			expect(response.status).toBe(response.status);
 
 			// Validate the response body structure
