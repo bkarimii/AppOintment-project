@@ -235,9 +235,6 @@ ul {
 	background-color: #f9f9f9;
 }
 
-button[type="button"]:hover {
-	background-color: #b32d3a;
-}
 .form-header {
 	font-size: 25px;
 	margin-top: 40px;

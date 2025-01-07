@@ -80,7 +80,8 @@ function NewMeeting() {
 		setMeetingStation([...meetingStation, { station: "" }]);
 	};
 
-	const deleteMeetingStation = (index) => {
+	const deleteMeetingStation = (index) => (e) => {
+		e.preventDefault();
 		const updatedMeetingStation = meetingStation.filter((_, i) => i !== index);
 		setMeetingStation(updatedMeetingStation);
 	};
@@ -175,9 +176,10 @@ function NewMeeting() {
 											</div>
 											<button
 												className="delete-button"
-												onClick={() => deleteMeetingStation(index)}
+												onClick={deleteMeetingStation(index)}
 												style={{ display: "flex", alignItems: "center" }}
 												name="delete-station"
+												type="button"
 											>
 												<svg
 													xmlns="http://www.w3.org/2000/svg"
@@ -355,6 +357,7 @@ function NewMeeting() {
 												onClick={deleteAttendee(index)}
 												aria-label={`Remove ${attendee.name} from attendee list`}
 												name="delete-attendee"
+												type="button"
 											>
 												<svg
 													xmlns="http://www.w3.org/2000/svg"
