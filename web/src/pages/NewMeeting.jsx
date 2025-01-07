@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { isArray } from "chart.js/helpers";
@@ -8,10 +7,6 @@ import "./NewMeeting.css";
 import { useNavigate } from "react-router-dom";
 
 function NewMeeting() {
-	// New variables for second phase //
-	const [inputBoxValue, setInputBoxValue] = useState("");
-	const [filteredStations, setFilteredStations] = useState([]);
-
 	const [stations, setStations] = useState([]);
 	const [helpIconToggle, setHelpIconToggle] = useState(false);
 	const [formData, setFormData] = useState(() => {
@@ -39,7 +34,7 @@ function NewMeeting() {
 	});
 
 	const [copyOfMeetingStations, setCopyOfMeetingStations] = useState(
-		formData.copyOfMeetingStations,
+		formData.copyOfMeetingStations || [{ station: { station_name: "" } }],
 	);
 	const [meetingDate, setMeetingDate] = useState(formData.meetingDate);
 	const [earliestStartTime, setEarliestStartTime] = useState(
@@ -51,7 +46,6 @@ function NewMeeting() {
 	const [attendees, setAttendees] = useState(formData.attendees);
 	const [intervalTime, setIntervalTime] = useState(formData.intervalTime);
 
-	// Initialize with empty values first
 	const [attendeeInputValues, setAttendeeInputValues] = useState(
 		formData.attendees.map(() => ""),
 	);
@@ -62,13 +56,11 @@ function NewMeeting() {
 
 	const navigate = useNavigate();
 
-	// Fetch stations and update attendeeInputValues when stations are loaded
 	useEffect(() => {
 		fetch("/api/station-list")
 			.then((response) => response.json())
 			.then((stationList) => {
 				setStations(stationList);
-				// Now that we have stations, we can set the correct input values
 				const initialInputValues = formData.attendees.map((attendee) => {
 					if (attendee.station) {
 						const station = stationList.find(
@@ -134,26 +126,22 @@ function NewMeeting() {
 			updatedAttendees[index][field] = value;
 			setAttendees(updatedAttendees);
 		} else if (field === "station") {
-			// Update the input value
 			const updatedInputValues = [...attendeeInputValues];
 			updatedInputValues[index] = value;
 			setAttendeeInputValues(updatedInputValues);
 
-			// Check if the value exactly matches a station name
 			const exactMatch = stations.find(
 				(station) => station.station_name === value,
 			);
 
 			if (exactMatch) {
-				// If exact match, clear suggestions and update the attendee's station
 				updatedAttendees[index].station = exactMatch.crs_code;
 				setAttendees(updatedAttendees);
 
 				const updatedFilteredStations = [...filteredAttendeeStations];
-				updatedFilteredStations[index] = []; // Clear suggestions
+				updatedFilteredStations[index] = [];
 				setFilteredAttendeeStations(updatedFilteredStations);
 			} else {
-				// If no exact match, show filtered suggestions
 				const matches = stations.filter((station) =>
 					station.station_name.toLowerCase().includes(value.toLowerCase()),
 				);
@@ -193,44 +181,6 @@ function NewMeeting() {
 		setHelpIconToggle(!helpIconToggle);
 	};
 
-	const handleInputChange = (e) => {
-		const value = e.target.value;
-		setInputBoxValue(value);
-
-		// If the value exactly matches a station name, clear the filtered stations
-		const exactMatch = stations.find(
-			(station) => station.station_name === value,
-		);
-		if (exactMatch) {
-			setFilteredStations([]);
-		} else {
-			// Otherwise, show filtered suggestions
-			const matches = stations.filter((stationObject) =>
-				stationObject.station_name.toLowerCase().includes(value.toLowerCase()),
-			);
-			setFilteredStations(matches);
-		}
-	};
-
-	const addStation = (e) => {
-		e.preventDefault();
-
-		const alreadyAdded = copyOfMeetingStations.some(
-			(stationObject) => stationObject.station.station_name === inputBoxValue,
-		);
-		const station = stations.find(
-			(station) => station.station_name === inputBoxValue,
-		);
-		if (!alreadyAdded && inputBoxValue.trim()) {
-			setCopyOfMeetingStations([...copyOfMeetingStations, { station }]);
-			setInputBoxValue("");
-		} else if (!inputBoxValue.trim()) {
-			alert("Empty value is not allowed!");
-		} else if (alreadyAdded) {
-			alert("Duplicate station!");
-		}
-	};
-
 	const deleteStation = (e, index) => {
 		e.preventDefault();
 		const updatedMeetingStations = copyOfMeetingStations.filter(
@@ -239,7 +189,6 @@ function NewMeeting() {
 		setCopyOfMeetingStations(updatedMeetingStations);
 	};
 
-	// =======================================================================
 	return (
 		<>
 			<div id="page-container">
@@ -247,96 +196,142 @@ function NewMeeting() {
 				<div id="form-page">
 					<form onSubmit={handleSubmit}>
 						<h2 className="form-header">Plan your meeting details</h2>
+
 						<div className="form-group">
 							<label id="list-heading" htmlFor="stn-list">
 								Meeting Station List
 							</label>
 							<div id="input-box-container" style={{ marginBottom: "1rem" }}>
-								<label htmlFor="station-list-input-box">Add a station:</label>
-								<input
-									type="text"
-									id="station-list-input-box"
-									value={inputBoxValue}
-									onChange={handleInputChange}
-									list="stations-list"
-									aria-haspopup="listbox"
-								/>
-								<datalist id="stations-list">
-									{filteredStations.map((station, index) => (
-										<option key={index} value={station.station_name}>
-											{station.crs_code}
-										</option>
-									))}
-								</datalist>
-								<button onClick={addStation}>Add</button>
+								<ul id="stn-list">
+									{copyOfMeetingStations.map((stationObject, index) => (
+										<li className="meeting-list-item" key={index}>
+											<div className="form-group station-input-group">
+												<input
+													type="text"
+													id={`meeting-station-input-${index}`}
+													value={stationObject.station.station_name || ""}
+													onChange={(e) => {
+														const value = e.target.value;
+														const updatedStations = [...copyOfMeetingStations];
+														const exactMatch = stations.find(
+															(station) => station.station_name === value,
+														);
 
-								<div>
-									<ul>
-										{copyOfMeetingStations.map((stationObject, index) => (
-											<li key={index} className="meeting-list-item">
-												<span>{stationObject.station.station_name}</span>
-												<button
-													onClick={(e) => deleteStation(e, index)}
-													className="delete-button"
-													aria-label={`Delete ${stationObject.station.station_name}`}
+														if (exactMatch) {
+															updatedStations[index].station = exactMatch;
+														} else {
+															updatedStations[index].station = {
+																station_name: value,
+															};
+														}
+														setCopyOfMeetingStations(updatedStations);
+													}}
+													list={`meeting-stations-list-${index}`}
+													placeholder=" "
+													required
+												/>
+												<datalist id={`meeting-stations-list-${index}`}>
+													{stations
+														.filter((station) =>
+															station.station_name
+																.toLowerCase()
+																.includes(
+																	(
+																		stationObject.station.station_name || ""
+																	).toLowerCase(),
+																),
+														)
+														.map((station, idx) => (
+															<option key={idx} value={station.station_name}>
+																{station.crs_code}
+															</option>
+														))}
+												</datalist>
+												<label htmlFor={`meeting-station-input-${index}`}>
+													Meeting Station {index + 1}
+												</label>
+											</div>
+											<button
+												onClick={(e) => deleteStation(e, index)}
+												className="delete-button"
+												aria-label={`Delete station ${index + 1}`}
+												type="button"
+											>
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													width="30"
+													height="30"
+													viewBox="0 0 64 64"
 												>
-													<svg
-														xmlns="http://www.w3.org/2000/svg"
-														width="20"
-														height="20"
-														viewBox="0 0 64 64"
-													>
-														<rect
-															x="16"
-															y="22"
-															width="32"
-															height="34"
-															fill="red"
-															rx="4"
-														/>
-														<rect
-															x="12"
-															y="16"
-															width="40"
-															height="5"
-															fill="black"
-															rx="2"
-														/>
-														<rect
-															x="24"
-															y="11"
-															width="16"
-															height="6"
-															fill="inherit"
-															rx="2"
-														/>
-														<rect
-															x="22"
-															y="27"
-															width="4"
-															height="24"
-															fill="white"
-														/>
-														<rect
-															x="30"
-															y="27"
-															width="4"
-															height="24"
-															fill="white"
-														/>
-														<rect
-															x="38"
-															y="27"
-															width="4"
-															height="24"
-															fill="white"
-														/>
-													</svg>
-												</button>
-											</li>
-										))}
-									</ul>
-								</div>
+													<rect
+														x="16"
+														y="22"
+														width="32"
+														height="34"
+														fill="red"
+														rx="4"
+													/>
+													<rect
+														x="12"
+														y="16"
+														width="40"
+														height="5"
+														fill="black"
+														rx="2"
+													/>
+													<rect
+														x="24"
+														y="11"
+														width="16"
+														height="6"
+														fill="inherit"
+														rx="2"
+													/>
+													<rect
+														x="22"
+														y="27"
+														width="4"
+														height="24"
+														fill="white"
+													/>
+													<rect
+														x="30"
+														y="27"
+														width="4"
+														height="24"
+														fill="white"
+													/>
+													<rect
+														x="38"
+														y="27"
+														width="4"
+														height="24"
+														fill="white"
+													/>
+												</svg>
+											</button>
+										</li>
+									))}
+								</ul>
+
+								<button
+									id="add-station-button"
+									type="button"
+									onClick={(e) => {
+										e.preventDefault();
+										setCopyOfMeetingStations([
+											...copyOfMeetingStations,
+											{ station: { station_name: "" } },
+										]);
+									}}
+									aria-label="Add station"
+									name="add-station"
+								>
+									<span style={{ fontSize: "18px", marginRight: "5px" }}>
+										+
+									</span>{" "}
+									Add Station
+								</button>
 							</div>
 						</div>
 
@@ -447,6 +442,7 @@ function NewMeeting() {
 												onClick={deleteAttendee(index)}
 												aria-label={`Remove ${attendee.name} from attendee list`}
 												name="delete-attendee"
+												type="button"
 											>
 												<svg
 													xmlns="http://www.w3.org/2000/svg"

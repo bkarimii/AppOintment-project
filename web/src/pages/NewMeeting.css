@@ -235,9 +235,6 @@ ul {
 	background-color: #f9f9f9;
 }
 
-button[type="button"]:hover {
-	background-color: #b32d3a;
-}
 .form-header {
 	font-size: 25px;
 	margin-top: 40px;
@@ -299,7 +296,6 @@ form {
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
-	border: solid 1px #ccc;
-	padding: 8px;
+	gap: 5px;
 	border-radius: 8px;
 }

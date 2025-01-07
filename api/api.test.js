@@ -1,3 +1,4 @@
+import { addDays, format } from "date-fns";
 import request from "supertest";
 
 import app from "./app.js";
@@ -9,7 +10,7 @@ describe("/api", () => {
 				{ station: { crs_code: "EUS", name: "London Euston" } },
 				{ station: { crs_code: "ABW", name: "Abbey Wood" } },
 			],
-			meetingDate: "2024-12-20",
+			meetingDate: format(addDays(new Date(), 7), "yyyy-MM-dd"),
 			earliestStartTime: "05:29",
 			latestStartTime: "05:45",
 
@@ -33,7 +34,7 @@ describe("/api", () => {
 				{ station: { crs_code: "EUS", name: "London Euston" } },
 				{ station: { crs_code: "ABW", name: "Abbey Wood" } },
 			],
-			meetingDate: "2024-12-20",
+			meetingDate: format(addDays(new Date(), 7), "yyyy-MM-dd"),
 			earliestStartTime: "05:29",
 			latestStartTime: "05:45",
 			attendees: [
@@ -46,14 +47,7 @@ describe("/api", () => {
 		it("returns a successful response with expected structure", async () => {
 			const response = await request(app).post("/api/compute-route").send(body);
 
-			/* eslint-disable-next-line no-console */
-			console.log(response);
-
-			// Test Comment
-			// expect(response.status).toBe(200);
-
-			// uncomment this when we have github back on its feet!  expect(response.status).toBe(200);
-			expect(response.status).toBe(response.status);
+			expect(response.status).toBe(200);
 
 			expect(response.body).toHaveProperty("status");
 			expect(response.body).toHaveProperty("totalInformation");
