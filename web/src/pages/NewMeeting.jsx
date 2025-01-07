@@ -11,12 +11,19 @@ function NewMeeting() {
 	const [helpIconToggle, setHelpIconToggle] = useState(false);
 	const [formData, setFormData] = useState(() => {
 		const savedData = JSON.parse(localStorage.getItem("newMeetingData"));
-		if (savedData && !isArray(savedData.meetingStation)) {
-			savedData.meetingStation = [{ station: savedData.meetingStation }];
+		if (savedData) {
+			if (!isArray(savedData.copyOfMeetingStations)) {
+				savedData.copyOfMeetingStations = [
+					{ station: savedData.copyOfMeetingStations },
+				];
+			}
+			if (!isArray(savedData.attendees)) {
+				savedData.attendees = [{ name: "", station: "" }];
+			}
 		}
 		return (
 			savedData || {
-				meetingStation: [{ station: "" }],
+				copyOfMeetingStations: [{ station: "" }],
 				meetingDate: "",
 				earliestStartTime: "",
 				latestStartTime: "",
@@ -25,7 +32,10 @@ function NewMeeting() {
 			}
 		);
 	});
-	const [meetingStation, setMeetingStation] = useState(formData.meetingStation);
+
+	const [copyOfMeetingStations, setCopyOfMeetingStations] = useState(
+		formData.copyOfMeetingStations || [{ station: { station_name: "" } }],
+	);
 	const [meetingDate, setMeetingDate] = useState(formData.meetingDate);
 	const [earliestStartTime, setEarliestStartTime] = useState(
 		formData.earliestStartTime,
@@ -35,18 +45,39 @@ function NewMeeting() {
 	);
 	const [attendees, setAttendees] = useState(formData.attendees);
 	const [intervalTime, setIntervalTime] = useState(formData.intervalTime);
+
+	const [attendeeInputValues, setAttendeeInputValues] = useState(
+		formData.attendees.map(() => ""),
+	);
+
+	const [filteredAttendeeStations, setFilteredAttendeeStations] = useState(
+		formData.attendees.map(() => []),
+	);
+
 	const navigate = useNavigate();
 
 	useEffect(() => {
 		fetch("/api/station-list")
 			.then((response) => response.json())
-			.then((stationList) => setStations(stationList));
-	}, []);
+			.then((stationList) => {
+				setStations(stationList);
+				const initialInputValues = formData.attendees.map((attendee) => {
+					if (attendee.station) {
+						const station = stationList.find(
+							(s) => s.crs_code === attendee.station,
+						);
+						return station ? station.station_name : "";
+					}
+					return "";
+				});
+				setAttendeeInputValues(initialInputValues);
+			});
+	}, [formData.attendees]);
 
 	useEffect(() => {
 		const updateFormData = () => {
 			setFormData({
-				meetingStation,
+				copyOfMeetingStations,
 				meetingDate,
 				earliestStartTime,
 				latestStartTime,
@@ -54,10 +85,9 @@ function NewMeeting() {
 				intervalTime,
 			});
 		};
-
 		updateFormData();
 	}, [
-		meetingStation,
+		copyOfMeetingStations,
 		meetingDate,
 		earliestStartTime,
 		latestStartTime,
@@ -68,23 +98,8 @@ function NewMeeting() {
 	useEffect(() => {
 		document.title = "ThisAppointment";
 		localStorage.setItem("newMeetingData", JSON.stringify(formData));
+		console.log(formData, "<------Form data");
 	}, [formData]);
-
-	const handleMeetingStationChange = (index, field, value) => {
-		const updatedMeetingStation = [...meetingStation];
-		updatedMeetingStation[index][field] = value;
-		setMeetingStation(updatedMeetingStation);
-	};
-
-	const addMeetingStation = () => {
-		setMeetingStation([...meetingStation, { station: "" }]);
-	};
-
-	const deleteMeetingStation = (index) => (e) => {
-		e.preventDefault();
-		const updatedMeetingStation = meetingStation.filter((_, i) => i !== index);
-		setMeetingStation(updatedMeetingStation);
-	};
 
 	const handleMeetingChange = (field, value) => {
 		switch (field) {
@@ -100,7 +115,6 @@ function NewMeeting() {
 			case "intervalTime":
 				setIntervalTime(value);
 				break;
-
 			default:
 				break;
 		}
@@ -108,18 +122,54 @@ function NewMeeting() {
 
 	const handleAttendeeChange = (index, field, value) => {
 		const updatedAttendees = [...attendees];
-		updatedAttendees[index][field] = value;
-		setAttendees(updatedAttendees);
+		if (field === "name") {
+			updatedAttendees[index][field] = value;
+			setAttendees(updatedAttendees);
+		} else if (field === "station") {
+			const updatedInputValues = [...attendeeInputValues];
+			updatedInputValues[index] = value;
+			setAttendeeInputValues(updatedInputValues);
+
+			const exactMatch = stations.find(
+				(station) => station.station_name === value,
+			);
+
+			if (exactMatch) {
+				updatedAttendees[index].station = exactMatch.crs_code;
+				setAttendees(updatedAttendees);
+
+				const updatedFilteredStations = [...filteredAttendeeStations];
+				updatedFilteredStations[index] = [];
+				setFilteredAttendeeStations(updatedFilteredStations);
+			} else {
+				const matches = stations.filter((station) =>
+					station.station_name.toLowerCase().includes(value.toLowerCase()),
+				);
+				const updatedFilteredStations = [...filteredAttendeeStations];
+				updatedFilteredStations[index] = matches;
+				setFilteredAttendeeStations(updatedFilteredStations);
+			}
+		}
 	};
 
 	const addAttendee = () => {
 		setAttendees([...attendees, { name: "", station: "" }]);
+		setAttendeeInputValues([...attendeeInputValues, ""]);
+		setFilteredAttendeeStations([...filteredAttendeeStations, []]);
 	};
 
 	const deleteAttendee = (index) => (e) => {
 		e.preventDefault();
 		const updatedAttendees = attendees.filter((_, i) => i !== index);
+		const updatedInputValues = attendeeInputValues.filter(
+			(_, i) => i !== index,
+		);
+		const updatedFilteredStations = filteredAttendeeStations.filter(
+			(_, i) => i !== index,
+		);
 		setAttendees(updatedAttendees);
+		setAttendeeInputValues(updatedInputValues);
+		setFilteredAttendeeStations(updatedFilteredStations);
 	};
 
 	const handleSubmit = (e) => {
@@ -131,6 +181,14 @@ function NewMeeting() {
 		setHelpIconToggle(!helpIconToggle);
 	};
 
+	const deleteStation = (e, index) => {
+		e.preventDefault();
+		const updatedMeetingStations = copyOfMeetingStations.filter(
+			(_, i) => i !== index,
+		);
+		setCopyOfMeetingStations(updatedMeetingStations);
+	};
+
 	return (
 		<>
 			<div id="page-container">
@@ -138,47 +196,65 @@ function NewMeeting() {
 				<div id="form-page">
 					<form onSubmit={handleSubmit}>
 						<h2 className="form-header">Plan your meeting details</h2>
+
 						<div className="form-group">
 							<label id="list-heading" htmlFor="stn-list">
 								Meeting Station List
 							</label>
-							<div id="station-list">
+							<div id="input-box-container" style={{ marginBottom: "1rem" }}>
 								<ul id="stn-list">
-									{meetingStation.map((station, index) => (
-										<li className="station-li" key={index}>
-											<div className="form-group station-code-group">
-												<select
-													name="meetingStation"
-													id={"meeting-station" + index}
-													value={station.station}
-													onChange={(e) =>
-														handleMeetingStationChange(
-															index,
-															"station",
-															e.target.value,
-														)
-													}
+									{copyOfMeetingStations.map((stationObject, index) => (
+										<li className="meeting-list-item" key={index}>
+											<div className="form-group station-input-group">
+												<input
+													type="text"
+													id={`meeting-station-input-${index}`}
+													value={stationObject.station.station_name || ""}
+													onChange={(e) => {
+														const value = e.target.value;
+														const updatedStations = [...copyOfMeetingStations];
+														const exactMatch = stations.find(
+															(station) => station.station_name === value,
+														);
+
+														if (exactMatch) {
+															updatedStations[index].station = exactMatch;
+														} else {
+															updatedStations[index].station = {
+																station_name: value,
+															};
+														}
+														setCopyOfMeetingStations(updatedStations);
+													}}
+													list={`meeting-stations-list-${index}`}
+													placeholder=" "
 													required
-													aria-required="true"
-												>
-													<option value="" disabled>
-														Select a station
-													</option>
-													{stations.map((station, idx) => (
-														<option key={idx} value={station.crs_code}>
-															{station.station_name}
-														</option>
-													))}
-												</select>
-												<label htmlFor={"meeting-station" + index}>
-													Station
+												/>
+												<datalist id={`meeting-stations-list-${index}`}>
+													{stations
+														.filter((station) =>
+															station.station_name
+																.toLowerCase()
+																.includes(
+																	(
+																		stationObject.station.station_name || ""
+																	).toLowerCase(),
+																),
+														)
+														.map((station, idx) => (
+															<option key={idx} value={station.station_name}>
+																{station.crs_code}
+															</option>
+														))}
+												</datalist>
+												<label htmlFor={`meeting-station-input-${index}`}>
+													Meeting Station {index + 1}
 												</label>
 											</div>
 											<button
+												onClick={(e) => deleteStation(e, index)}
 												className="delete-button"
-												onClick={deleteMeetingStation(index)}
-												style={{ display: "flex", alignItems: "center" }}
-												name="delete-station"
+												aria-label={`Delete station ${index + 1}`}
 												type="button"
 											>
 												<svg
@@ -192,7 +268,7 @@ function NewMeeting() {
 														y="22"
 														width="32"
 														height="34"
-														fill="black"
+														fill="red"
 														rx="4"
 													/>
 													<rect
@@ -208,7 +284,7 @@ function NewMeeting() {
 														y="11"
 														width="16"
 														height="6"
-														fill="black"
+														fill="inherit"
 														rx="2"
 													/>
 													<rect
@@ -241,12 +317,19 @@ function NewMeeting() {
 								<button
 									id="add-station-button"
 									type="button"
-									onClick={addMeetingStation}
+									onClick={(e) => {
+										e.preventDefault();
+										setCopyOfMeetingStations([
+											...copyOfMeetingStations,
+											{ station: { station_name: "" } },
+										]);
+									}}
+									aria-label="Add station"
 									name="add-station"
 								>
 									<span style={{ fontSize: "18px", marginRight: "5px" }}>
 										+
-									</span>
+									</span>{" "}
 									Add Station
 								</button>
 							</div>
@@ -326,10 +409,10 @@ function NewMeeting() {
 												<label htmlFor={"attendee-name" + index}>Name</label>
 											</div>
 											<div className="form-group attendee-station-group">
-												<select
-													name="attendeesStation"
-													id={"attendees-station" + index}
-													value={attendees[index].station}
+												<input
+													type="text"
+													id={`attendee-station-input-${index}`}
+													value={attendeeInputValues[index]}
 													onChange={(e) =>
 														handleAttendeeChange(
 															index,
@@ -337,18 +420,20 @@ function NewMeeting() {
 															e.target.value,
 														)
 													}
+													list={`stations-list-${index}`}
+													placeholder=" "
 													required
-												>
-													<option value="" disabled>
-														Select a station
-													</option>
-													{stations.map((station, idx) => (
-														<option key={idx} value={station.crs_code}>
-															{station.station_name}
-														</option>
-													))}
-												</select>
-												<label htmlFor={"attendees-station" + index}>
+												/>
+												<datalist id={`stations-list-${index}`}>
+													{filteredAttendeeStations[index].map(
+														(station, idx) => (
+															<option key={idx} value={station.station_name}>
+																{station.crs_code}
+															</option>
+														),
+													)}
+												</datalist>
+												<label htmlFor={`attendee-station-input-${index}`}>
 													Station
 												</label>
 											</div>
@@ -373,7 +458,6 @@ function NewMeeting() {
 														fill="red"
 														rx="4"
 													/>
-
 													<rect
 														x="12"
 														y="16"
@@ -382,7 +466,6 @@ function NewMeeting() {
 														fill="black"
 														rx="2"
 													/>
-
 													<rect
 														x="24"
 														y="11"
@@ -391,7 +474,6 @@ function NewMeeting() {
 														fill="inherit"
 														rx="2"
 													/>
-
 													<rect
 														x="22"
 														y="27"
@@ -462,12 +544,12 @@ function NewMeeting() {
 								<h3 id="help-title">How to Fill the Form</h3>
 								<p>
 									<strong>Meeting Station:</strong> Choose the station where the
-									meeting will take place from the dropdown menu. If the
-									stations is not listed, please check back later.
+									meeting will take place. Type in the station name and select
+									from the suggestions.
 								</p>
 								<p>
 									<strong>Meeting Date:</strong> Select the date of the meeting
-									using the date picker or import manually.
+									using the date picker or input manually.
 								</p>
 								<p>
 									<strong>Earliest Start Time:</strong> Specify the earliest
@@ -478,17 +560,14 @@ function NewMeeting() {
 									you can start the meeting.
 								</p>
 								<h4>Attendee List:</h4>
-								<p>
-									Enter the names and select the stations for each attendee:
-								</p>
+								<p>Enter the names and stations for each attendee:</p>
 								<ul>
 									<li>
 										<strong>Name:</strong> Enter the full name of the attendee.
 									</li>
 									<li>
-										<strong>Station:</strong> Select the station from the
-										dropdown menu that corresponds to the attendee&lsquo;s
-										location.
+										<strong>Station:</strong> Type in the station name and
+										select from the suggestions that appear.
 									</li>
 								</ul>
 								<p>
@@ -513,4 +592,5 @@ function NewMeeting() {
 NewMeeting.propTypes = {
 	onFormSubmit: PropTypes.func,
 };
+
 export default NewMeeting;

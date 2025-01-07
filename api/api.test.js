@@ -6,15 +6,9 @@ import app from "./app.js";
 describe("/api", () => {
 	describe("POST /compute-route", () => {
 		const body = {
-			meetingStation: [
-				{
-					name: "eus",
-					station: "EUS",
-				},
-				{
-					name: "abw",
-					station: "ABW",
-				},
+			copyOfMeetingStations: [
+				{ station: { crs_code: "EUS", name: "London Euston" } },
+				{ station: { crs_code: "ABW", name: "Abbey Wood" } },
 			],
 			meetingDate: format(addDays(new Date(), 7), "yyyy-MM-dd"),
 			earliestStartTime: "05:29",
@@ -36,15 +30,9 @@ describe("/api", () => {
 
 	describe("POST /compute-route 2", () => {
 		const body = {
-			meetingStation: [
-				{
-					name: "London Euston",
-					station: "EUS",
-				},
-				{
-					name: "Abbey Wood",
-					station: "ABW",
-				},
+			copyOfMeetingStations: [
+				{ station: { crs_code: "EUS", name: "London Euston" } },
+				{ station: { crs_code: "ABW", name: "Abbey Wood" } },
 			],
 			meetingDate: format(addDays(new Date(), 7), "yyyy-MM-dd"),
 			earliestStartTime: "05:29",
@@ -56,12 +44,16 @@ describe("/api", () => {
 			intervalTime: 15,
 		};
 
-		it("returns an array of travel stats", async () => {
+		it("returns a successful response with expected structure", async () => {
 			const response = await request(app).post("/api/compute-route").send(body);
 
 			expect(response.status).toBe(200);
 
-			// Validate the response body structure
+			expect(response.body).toHaveProperty("status");
+			expect(response.body).toHaveProperty("totalInformation");
+
+			expect(Array.isArray(response.body.totalInformation)).toBe(true);
+			expect(response.body.totalInformation.length).toBeGreaterThanOrEqual(2);
 		}, 30000);
 	});
 });

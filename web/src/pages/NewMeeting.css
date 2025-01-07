@@ -290,3 +290,12 @@ form {
 		padding: 10px;
 	}
 }
+
+.meeting-list-item {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	gap: 5px;
+	border-radius: 8px;
+}
