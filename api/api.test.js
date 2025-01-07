@@ -1,3 +1,4 @@
+import { addDays, format } from "date-fns";
 import request from "supertest";
 
 import app from "./app.js";
@@ -15,7 +16,7 @@ describe("/api", () => {
 					station: "ABW",
 				},
 			],
-			meetingDate: "2024-12-20",
+			meetingDate: format(addDays(new Date(), 7), "yyyy-MM-dd"),
 			earliestStartTime: "05:29",
 			latestStartTime: "05:45",
 
@@ -45,7 +46,7 @@ describe("/api", () => {
 					station: "ABW",
 				},
 			],
-			meetingDate: "2024-12-20",
+			meetingDate: format(addDays(new Date(), 7), "yyyy-MM-dd"),
 			earliestStartTime: "05:29",
 			latestStartTime: "05:45",
 			attendees: [
@@ -58,8 +59,7 @@ describe("/api", () => {
 		it("returns an array of travel stats", async () => {
 			const response = await request(app).post("/api/compute-route").send(body);
 
-			// uncomment this when we have github back on its feet!  expect(response.status).toBe(200);
-			expect(response.status).toBe(response.status);
+			expect(response.status).toBe(200);
 
 			// Validate the response body structure
 		}, 30000);
