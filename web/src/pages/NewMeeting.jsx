@@ -10,7 +10,7 @@ function NewMeeting() {
 	const [stations, setStations] = useState([]);
 	const [helpIconToggle, setHelpIconToggle] = useState(false);
 	const [formData, setFormData] = useState(() => {
-		const savedData = JSON.parse(localStorage.getItem("newMeetingData"));
+		const savedData = JSON.parse(localStorage.getItem("newMeetingData v2"));
 		if (savedData) {
 			if (!isArray(savedData.copyOfMeetingStations)) {
 				savedData.copyOfMeetingStations = [
@@ -29,6 +29,7 @@ function NewMeeting() {
 				latestStartTime: "",
 				attendees: [{ name: "", station: "" }],
 				intervalTime: 20,
+				userTimeZone: "",
 			}
 		);
 	});
@@ -53,6 +54,8 @@ function NewMeeting() {
 	const [filteredAttendeeStations, setFilteredAttendeeStations] = useState(
 		formData.attendees.map(() => []),
 	);
+
+	const [userTimeZone, setUserTimeZone] = useState(formData.userTimeZone);
 
 	const navigate = useNavigate();
 
@@ -83,6 +86,7 @@ function NewMeeting() {
 				latestStartTime,
 				attendees,
 				intervalTime,
+				userTimeZone,
 			});
 		};
 		updateFormData();
@@ -93,19 +97,30 @@ function NewMeeting() {
 		latestStartTime,
 		attendees,
 		intervalTime,
+		userTimeZone,
 	]);
 
 	useEffect(() => {
 		document.title = "ThisAppointment";
-		localStorage.setItem("newMeetingData", JSON.stringify(formData));
+		localStorage.setItem("newMeetingData v2", JSON.stringify(formData));
 		console.log(formData, "<------Form data");
 	}, [formData]);
 
 	const handleMeetingChange = (field, value) => {
 		switch (field) {
-			case "meetingDate":
+			case "meetingDate": {
 				setMeetingDate(value);
+				const selectedDate = new Date(value);
+				const ianaTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+				const timeZoneOffset = Intl.DateTimeFormat("en-US", {
+					timeZoneName: "shortOffset",
+				})
+					.format(selectedDate)
+					.split(" ")
+					.pop();
+				setUserTimeZone({ ianaTimeZone, timeZoneOffset });
 				break;
+			}
 			case "earliestStartTime":
 				setEarliestStartTime(value);
 				break;
