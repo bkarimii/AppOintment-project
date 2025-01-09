@@ -173,6 +173,23 @@ function NewMeeting() {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
+
+		const invalidStations = copyOfMeetingStations.filter((station) => {
+			// Check if this station exists in the stations array
+			const isValid = stations.some(
+				(validStation) =>
+					validStation.station_name === station.station.station_name,
+			);
+			return !isValid;
+		});
+
+		if (invalidStations.length > 0) {
+			alert(
+				"Please ensure all meeting stations are valid stations from the list",
+			);
+			return;
+		}
+
 		navigate("/meeting-analysis");
 	};
 
@@ -217,7 +234,7 @@ function NewMeeting() {
 														);
 
 														if (exactMatch) {
-															updatedStations[index].station = exactMatch;
+															// updatedStations[index].station = exactMatch;
 															const isDuplicate = copyOfMeetingStations.some(
 																(s, idx) =>
 																	idx !== index &&
@@ -231,15 +248,19 @@ function NewMeeting() {
 															}
 
 															updatedStations[index].station = exactMatch;
+															updatedStations[index].isValid = true;
 														} else {
 															updatedStations[index].station = {
 																station_name: value,
 															};
+
+															updatedStations[index].isValid = value === "";
 														}
 														setCopyOfMeetingStations(updatedStations);
 													}}
 													list={`meeting-stations-list-${index}`}
 													placeholder=" "
+													className={`${!stationObject.isValid && stationObject.station.station_name ? "invalid-input" : ""}`}
 													required
 												/>
 												<datalist id={`meeting-stations-list-${index}`}>
