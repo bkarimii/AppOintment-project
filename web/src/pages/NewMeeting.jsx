@@ -98,7 +98,6 @@ function NewMeeting() {
 	useEffect(() => {
 		document.title = "ThisAppointment";
 		localStorage.setItem("newMeetingData", JSON.stringify(formData));
-		console.log(formData, "<------Form data");
 	}, [formData]);
 
 	const handleMeetingChange = (field, value) => {
@@ -218,6 +217,19 @@ function NewMeeting() {
 														);
 
 														if (exactMatch) {
+															updatedStations[index].station = exactMatch;
+															const isDuplicate = copyOfMeetingStations.some(
+																(s, idx) =>
+																	idx !== index &&
+																	s.station.station_name ===
+																		exactMatch.station_name,
+															);
+
+															if (isDuplicate) {
+																alert("This station has already been added");
+																return;
+															}
+
 															updatedStations[index].station = exactMatch;
 														} else {
 															updatedStations[index].station = {
