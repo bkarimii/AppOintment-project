@@ -209,7 +209,7 @@ function NewMeeting() {
 												<input
 													type="text"
 													id={`meeting-station-input-${index}`}
-													value={stationObject.station.station_name || ""}
+													value={stationObject?.station?.station_name || ""}
 													onChange={(e) => {
 														const value = e.target.value;
 														const updatedStations = [...copyOfMeetingStations];
@@ -237,12 +237,12 @@ function NewMeeting() {
 																.toLowerCase()
 																.includes(
 																	(
-																		stationObject.station.station_name || ""
+																		stationObject?.station?.station_name || ""
 																	).toLowerCase(),
 																),
 														)
 														.map((station, idx) => (
-															<option key={idx} value={station.station_name}>
+															<option key={idx} value={station?.station_name}>
 																{station.crs_code}
 															</option>
 														))}
