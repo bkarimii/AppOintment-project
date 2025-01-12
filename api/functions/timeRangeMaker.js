@@ -10,24 +10,24 @@ export function generateTimeSlots(
 ) {
 	const slots = [];
 
-	const start = fromZonedTime(
-		`${meetingDate}T${startTime}:00`,
-		userTimeZone.ianaTimeZone,
-	);
-	const end = fromZonedTime(
-		`${meetingDate}T${endTime}:00`,
-		userTimeZone.ianaTimeZone,
-	);
+	const start = fromZonedTime(`${meetingDate}T${startTime}:00`, userTimeZone);
+	const end = fromZonedTime(`${meetingDate}T${endTime}:00`, userTimeZone);
 
 	intervalMinutes = Number(intervalMinutes);
+
 	let current = start;
 
 	while (current <= end) {
-		slots.push(
-			format(current, "yyyy-MM-dd'T'HH:mm:ssXXX", {
-				timeZone: userTimeZone.ianaTimeZone,
-			}),
+		const formattedUTC = format(
+			addMinutes(current, current.getTimezoneOffset()),
+			"yyyy-MM-dd'T'HH:mm:ssXXX",
+			{
+				timeZone: "UTC",
+			},
 		);
+
+		slots.push(formattedUTC);
+
 		current = addMinutes(current, intervalMinutes);
 	}
 

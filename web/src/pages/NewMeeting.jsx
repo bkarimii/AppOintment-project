@@ -110,15 +110,7 @@ function NewMeeting() {
 		switch (field) {
 			case "meetingDate": {
 				setMeetingDate(value);
-				const selectedDate = new Date(value);
-				const ianaTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-				const timeZoneOffset = Intl.DateTimeFormat("en-US", {
-					timeZoneName: "shortOffset",
-				})
-					.format(selectedDate)
-					.split(" ")
-					.pop();
-				setUserTimeZone({ ianaTimeZone, timeZoneOffset });
+				setUserTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
 				break;
 			}
 			case "earliestStartTime":
