@@ -26,7 +26,11 @@ export const clientRouter = (apiRoot) => {
 	router.use(express.static(staticDir));
 	router.use((req, res, next) => {
 		if (req.method === "GET" && !req.url.startsWith(apiRoot)) {
-			return res.sendFile(join(staticDir, "index.html"));
+			// Because we're seeing a lot of spammers crawling the site, let's not serve the index.html for unknown routes
+			// Instead, let's return a 404.  Not least it's less bandwidth.
+			// return res.sendFile(join(staticDir, "index.html"));
+			logger.warn("returning 404 for unknown route: %s", req.url);
+			return res.status(404).send("404 Not Found");
 		}
 		next();
 	});
