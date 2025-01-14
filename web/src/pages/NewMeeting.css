@@ -299,3 +299,7 @@ form {
 	gap: 5px;
 	border-radius: 8px;
 }
+
+.invalid-input {
+	border: 2px solid red !important; /* Added !important to override any existing styles */
+}
