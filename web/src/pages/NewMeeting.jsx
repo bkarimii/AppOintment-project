@@ -32,6 +32,8 @@ function NewMeeting() {
 		formData.attendees.map(() => ""),
 	);
 
+	const version = formData.version;
+
 	const [filteredAttendeeStations, setFilteredAttendeeStations] = useState(
 		formData.attendees.map(() => []),
 	);
@@ -65,6 +67,7 @@ function NewMeeting() {
 				latestStartTime,
 				attendees,
 				intervalTime,
+				version,
 			});
 		};
 		updateFormData();
@@ -75,6 +78,7 @@ function NewMeeting() {
 		latestStartTime,
 		attendees,
 		intervalTime,
+		version,
 	]);
 
 	useEffect(() => {
@@ -301,7 +305,7 @@ function NewMeeting() {
 										e.preventDefault();
 										setCopyOfMeetingStations([
 											...copyOfMeetingStations,
-											{ station: { station_name: "" } },
+											{ station: { station_name: "", crs_code: "" } },
 										]);
 									}}
 									aria-label="Add station"
