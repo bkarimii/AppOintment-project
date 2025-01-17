@@ -1,8 +1,8 @@
 const localStorageName = "meetingData";
-const currentVersion = 1.3; // update this currentVersion value every time you change local storage structure
+const currentVersion = "v1.0.1"; // update this currentVersion value every time you change local storage structure
 // update the meeting schema here
 const meetingDataStructure = {
-	version: currentVersion,
+	version: "v1.0.1",
 	copyOfMeetingStations: [{ station: { station_name: "", crs_code: "" } }],
 	meetingDate: "",
 	earliestStartTime: "",
@@ -15,22 +15,27 @@ const meetingDataStructure = {
 };
 
 export function getLocalStorage() {
-	const meetingData = localStorage.getItem(localStorageName);
-	let parsedData;
-	if (meetingData) {
-		parsedData = JSON.parse(meetingData);
+	const localStorageObject = localStorage.getItem(localStorageName);
+	let parsedData = {};
+
+	if (localStorageObject) {
+		try {
+			parsedData = JSON.parse(localStorageObject);
+		} catch (error) {
+			console.error("Error parsing localStorage:", error);
+			return meetingDataStructure;
+		}
 	}
 
-	if (!parsedData || parsedData.version !== currentVersion) {
-		console.error("Version mismatch: local storage version is now updating");
-		localStorage.removeItem(localStorageName);
-		localStorage.setItem(
-			localStorageName,
-			JSON.stringify(meetingDataStructure),
+	if (!parsedData[currentVersion]) {
+		console.error(
+			"Version mismatch: local storage version is old, initializing storage for current version",
 		);
-		return meetingDataStructure;
+		parsedData[currentVersion] = meetingDataStructure;
+		localStorage.setItem(localStorageName, JSON.stringify(parsedData));
 	}
-	return parsedData;
+
+	return parsedData[currentVersion];
 }
 
 export function setLocalStorage(newMeetingData) {
@@ -38,17 +43,33 @@ export function setLocalStorage(newMeetingData) {
 		console.error("Version mismatch: local storage version is not updated");
 		return;
 	}
+
 	const isSameStructure = compareStructures(
 		meetingDataStructure,
 		newMeetingData,
 	);
-	if (isSameStructure) {
-		localStorage.setItem(localStorageName, JSON.stringify(newMeetingData));
-	} else {
+
+	if (!isSameStructure) {
 		console.error(
-			"Local storage structure is incorrect, Please update the template structure in meetingDataStructure variable",
+			"Local storage structure is not matching, Please update the version and template structure in meetingDataStructure variable",
 		);
+		return;
 	}
+
+	const localStorageObject = localStorage.getItem(localStorageName);
+	let parsedData = {};
+
+	if (localStorageObject) {
+		try {
+			parsedData = JSON.parse(localStorageObject);
+		} catch (error) {
+			console.error("Error parsing localStorage:", error);
+		}
+	}
+
+	parsedData[currentVersion] = newMeetingData;
+
+	localStorage.setItem(localStorageName, JSON.stringify(parsedData));
 }
 
 function compareStructures(template, data) {
