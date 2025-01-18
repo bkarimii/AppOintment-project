@@ -1,6 +1,23 @@
+/* 
+
+TO UPDATE LOCALSTORAGE STRUCTURE PLEASE FOLLOW THE RULES BELOW
+
+1- follow semantic versioning	--->	major.minor.patch	ex --> 1.3.1
+
+	major updates --> if you change the structure or the keys of the localStorage
+
+	minor updates --> if you are adding a new key to structure
+
+	patch upgrades --> if the old versions are completely compatiple with new versions (only version variable will be changed)
+
+2- update currentVersion and meetingDataStructure in this file
+
+3- update defaultMeetingStructure from the test file
+
+-- */
+
 const localStorageName = "meetingData";
-const currentVersion = "1.0.1"; // update this currentVersion value every time you change local storage structure
-// update the meeting schema here
+const currentVersion = "1.0.1";
 const meetingDataStructure = {
 	version: "1.0.1",
 	copyOfMeetingStations: [{ station: { station_name: "", crs_code: "" } }],
@@ -71,7 +88,7 @@ export function setLocalStorage(newMeetingData) {
 		try {
 			parsedData = JSON.parse(localStorageObject);
 		} catch (error) {
-			console.error("Error parsing localStorage:", error);
+			console.warn("Error parsing localStorage:", error);
 		}
 	}
 
