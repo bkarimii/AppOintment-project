@@ -30,12 +30,15 @@ export function getLocalStorage() {
 	const latestVersion = findLatestVersion(parsedData);
 
 	if (latestVersion) {
-		parsedData[currentVersion] = migrateMeetingData(parsedData[latestVersion]);
+		parsedData[currentVersion] = migrateMeetingData(
+			parsedData[latestVersion],
+			meetingDataStructure,
+		);
 	} else {
 		parsedData[currentVersion] = meetingDataStructure;
 
 		localStorage.setItem(localStorageName, JSON.stringify(parsedData));
-		console.error(
+		console.warn(
 			"Version mismatch: local storage version is old, initializing storage for current version",
 		);
 	}
@@ -128,15 +131,15 @@ function compareVersion(version) {
 	return "DEFAULT";
 }
 
-function migrateMeetingData(oldData) {
+export function migrateMeetingData(oldData, newData) {
 	const versionStatus = compareVersion(oldData.version);
 
 	switch (versionStatus) {
 		case "MAJOR":
-			return meetingDataStructure;
+			return newData;
 		case "MINOR":
 			return {
-				...meetingDataStructure,
+				...newData,
 				...oldData,
 				version: currentVersion,
 			};
@@ -148,7 +151,7 @@ function migrateMeetingData(oldData) {
 		case "SAME":
 			return oldData;
 		default:
-			return meetingDataStructure;
+			return newData;
 	}
 }
 
