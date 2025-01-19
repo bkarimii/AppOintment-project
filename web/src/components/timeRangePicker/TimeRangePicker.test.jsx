@@ -20,7 +20,6 @@ describe("TimeRangePicker Component", () => {
 			/>,
 		);
 
-		// Check if inputs and labels are rendered
 		expect(screen.getByLabelText("Earliest Start Time")).toBeInTheDocument();
 		expect(screen.getByLabelText("Latest Start Time")).toBeInTheDocument();
 		expect(screen.getByText("to")).toBeInTheDocument();
@@ -35,7 +34,6 @@ describe("TimeRangePicker Component", () => {
 			/>,
 		);
 
-		// Check the input values
 		const earliestInput = screen.getByLabelText("Earliest Start Time");
 		const latestInput = screen.getByLabelText("Latest Start Time");
 

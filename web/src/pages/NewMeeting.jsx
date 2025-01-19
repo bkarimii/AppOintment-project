@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import "./NewMeeting.css";
 import { useNavigate } from "react-router-dom";
 
+import TimeRangePicker from "../components/timeRangePicker/TimeRangePicker.jsx";
 import {
 	getLocalStorage,
 	setLocalStorage,
@@ -342,40 +343,12 @@ function NewMeeting() {
 							<label htmlFor="meeting-date">Meeting Date</label>
 						</div>
 
-						<div className="time-group">
-							<div className="form-group">
-								<input
-									type="time"
-									id="earliest-start-time"
-									name="earliestStartTime"
-									required
-									value={earliestStartTime}
-									onChange={(e) =>
-										handleMeetingChange("earliestStartTime", e.target.value)
-									}
-									aria-required="true"
-								/>
-								<label htmlFor="earliest-start-time">Earliest Start Time</label>
-							</div>
+						<TimeRangePicker
+							earliestStartTime={earliestStartTime}
+							latestStartTime={latestStartTime}
+							handleMeetingChange={handleMeetingChange}
+						/>
 
-							<p>to</p>
-
-							<div className="form-group">
-								<input
-									type="time"
-									id="latest-start-time"
-									name="latestStartTime"
-									required
-									value={latestStartTime}
-									min={earliestStartTime}
-									onChange={(e) =>
-										handleMeetingChange("latestStartTime", e.target.value)
-									}
-									aria-required="true"
-								/>
-								<label htmlFor="latest-start-time">Latest Start Time</label>
-							</div>
-						</div>
 						<h3 className="form-header">Who is coming?</h3>
 
 						<div className="form-group">
