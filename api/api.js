@@ -23,6 +23,7 @@ api.post("/compute-route", async (req, res) => {
 		intervalTime,
 		destination,
 		origins,
+		userTimeZone,
 	} = body;
 	if (!meetingDate || !startingTime || !endingTime) {
 		return res.status(400).json({
@@ -51,6 +52,7 @@ api.post("/compute-route", async (req, res) => {
 			startingTime,
 			endingTime,
 			intervalTime,
+			userTimeZone,
 		);
 
 		const arrayOfDestination = body.destination;
@@ -115,6 +117,7 @@ export async function fetchBodyMaker(body) {
 		const meetingDate = body.meetingDate;
 		const startingTime = body.earliestStartTime;
 		const endingTime = body.latestStartTime;
+		const userTimeZone = body.userTimeZone;
 
 		for (const eachDestinationCrs of arrayOfDestination) {
 			// Find destination station in JSON data
@@ -169,6 +172,7 @@ export async function fetchBodyMaker(body) {
 			startingTime: startingTime,
 			endingTime: endingTime,
 			intervalTime: intervalTime,
+			userTimeZone: userTimeZone,
 		};
 
 		return formattedBody;

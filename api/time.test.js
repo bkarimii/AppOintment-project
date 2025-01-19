@@ -6,6 +6,7 @@ describe("generateTimeSlots", () => {
 		const startTime = "05:29";
 		const endTime = "05:45";
 		const intervalMinutes = 5;
+		const userTimeZone = "Europe/London";
 
 		const expectedSlots = [
 			"2024-12-20T05:29:00.000Z",
@@ -19,6 +20,7 @@ describe("generateTimeSlots", () => {
 			startTime,
 			endTime,
 			intervalMinutes,
+			userTimeZone,
 		);
 
 		expect(slots).toEqual(expectedSlots);
@@ -29,12 +31,14 @@ describe("generateTimeSlots", () => {
 		const startTime = "06:00";
 		const endTime = "05:45";
 		const intervalMinutes = 5;
+		const userTimeZone = "Europe/London";
 
 		const slots = generateTimeSlots(
 			meetingDate,
 			startTime,
 			endTime,
 			intervalMinutes,
+			userTimeZone,
 		);
 
 		expect(slots).toEqual([]);
@@ -45,6 +49,7 @@ describe("generateTimeSlots", () => {
 		const startTime = "05:29";
 		const endTime = "05:45";
 		const intervalMinutes = "5";
+		const userTimeZone = "Europe/London";
 
 		const expectedSlots = [
 			"2024-12-20T05:29:00.000Z",
@@ -58,6 +63,7 @@ describe("generateTimeSlots", () => {
 			startTime,
 			endTime,
 			intervalMinutes,
+			userTimeZone,
 		);
 
 		expect(slots).toEqual(expectedSlots);
@@ -68,6 +74,7 @@ describe("generateTimeSlots", () => {
 		const startTime = "05:00";
 		const endTime = "07:00";
 		const intervalMinutes = 60;
+		const userTimeZone = "Europe/London";
 
 		const expectedSlots = [
 			"2024-12-20T05:00:00.000Z",
@@ -80,6 +87,7 @@ describe("generateTimeSlots", () => {
 			startTime,
 			endTime,
 			intervalMinutes,
+			userTimeZone,
 		);
 
 		expect(slots).toEqual(expectedSlots);
@@ -90,6 +98,7 @@ describe("generateTimeSlots", () => {
 		const startTime = "05:00";
 		const endTime = "05:02";
 		const intervalMinutes = 1;
+		const userTimeZone = "Europe/London";
 
 		const expectedSlots = [
 			"2024-12-20T05:00:00.000Z",
@@ -102,6 +111,7 @@ describe("generateTimeSlots", () => {
 			startTime,
 			endTime,
 			intervalMinutes,
+			userTimeZone,
 		);
 
 		expect(slots).toEqual(expectedSlots);
@@ -112,6 +122,7 @@ describe("generateTimeSlots", () => {
 		const startTime = "00:00";
 		const endTime = "02:00";
 		const intervalMinutes = 30;
+		const userTimeZone = "Europe/London";
 
 		const expectedSlots = [
 			"2024-05-30T23:00:00.000Z",
@@ -126,6 +137,7 @@ describe("generateTimeSlots", () => {
 			startTime,
 			endTime,
 			intervalMinutes,
+			userTimeZone,
 		);
 
 		expect(slots).toEqual(expectedSlots);

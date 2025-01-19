@@ -145,7 +145,7 @@ function DisplayTravelResults() {
 	const fetchTravelData = async (URL) => {
 		setLoading(true);
 		try {
-			const bodyData = localStorage.getItem("newMeetingData");
+			const bodyData = localStorage.getItem("newMeetingData v2");
 
 			const response = await fetch(URL, {
 				method: "POST",
