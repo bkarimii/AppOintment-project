@@ -72,7 +72,6 @@ function NewMeeting() {
 				intervalTime,
 				version,
 				userTimeZone,
-
 			});
 		};
 		updateFormData();
@@ -84,7 +83,7 @@ function NewMeeting() {
 		attendees,
 		intervalTime,
 		version,
-    userTimeZone,
+		userTimeZone,
 	]);
 
 	useEffect(() => {

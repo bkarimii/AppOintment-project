@@ -147,7 +147,6 @@ function DisplayTravelResults() {
 	const fetchTravelData = async (URL) => {
 		setLoading(true);
 		try {
-
 			const bodyData = JSON.stringify(getLocalStorage());
 
 			const response = await fetch(URL, {
