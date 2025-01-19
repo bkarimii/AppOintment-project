@@ -17,9 +17,9 @@ TO UPDATE LOCALSTORAGE STRUCTURE PLEASE FOLLOW THE RULES BELOW
 -- */
 
 const localStorageName = "meetingData";
-const currentVersion = "1.0.1";
+const currentVersion = "1.1.1";
 const meetingDataStructure = {
-	version: "1.0.1",
+	version: currentVersion,
 	copyOfMeetingStations: [{ station: { station_name: "", crs_code: "" } }],
 	meetingDate: "",
 	earliestStartTime: "",
@@ -29,6 +29,7 @@ const meetingDataStructure = {
 		{ name: "", station: "" },
 	],
 	intervalTime: 20,
+	userTimeZone: "",
 };
 
 export function getLocalStorage() {
