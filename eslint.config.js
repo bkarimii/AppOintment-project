@@ -73,7 +73,10 @@ export default [
 	{
 		files: ["web/**/*.js?(x)"],
 		languageOptions: {
-			globals: globals.browser,
+			globals: {
+				...globals.browser,
+				...globals.es2021,
+			},
 			parserOptions: {
 				ecmaFeatures: {
 					jsx: true,

@@ -13,6 +13,7 @@ import {
 function NewMeeting() {
 	const [stations, setStations] = useState([]);
 	const [helpIconToggle, setHelpIconToggle] = useState(false);
+
 	const [formData, setFormData] = useState(() => getLocalStorage());
 
 	const [copyOfMeetingStations, setCopyOfMeetingStations] = useState(
@@ -37,6 +38,8 @@ function NewMeeting() {
 	const [filteredAttendeeStations, setFilteredAttendeeStations] = useState(
 		formData.attendees.map(() => []),
 	);
+
+	const [userTimeZone, setUserTimeZone] = useState(formData.userTimeZone);
 
 	const navigate = useNavigate();
 
@@ -68,6 +71,8 @@ function NewMeeting() {
 				attendees,
 				intervalTime,
 				version,
+				userTimeZone,
+
 			});
 		};
 		updateFormData();
@@ -79,6 +84,7 @@ function NewMeeting() {
 		attendees,
 		intervalTime,
 		version,
+    userTimeZone,
 	]);
 
 	useEffect(() => {
@@ -87,9 +93,11 @@ function NewMeeting() {
 
 	const handleMeetingChange = (field, value) => {
 		switch (field) {
-			case "meetingDate":
+			case "meetingDate": {
 				setMeetingDate(value);
+				setUserTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
 				break;
+			}
 			case "earliestStartTime":
 				setEarliestStartTime(value);
 				break;
@@ -193,7 +201,7 @@ function NewMeeting() {
 												<input
 													type="text"
 													id={`meeting-station-input-${index}`}
-													value={stationObject.station.station_name || ""}
+													value={stationObject?.station?.station_name || ""}
 													onChange={(e) => {
 														const value = e.target.value;
 														const updatedStations = [...copyOfMeetingStations];
@@ -221,12 +229,12 @@ function NewMeeting() {
 																.toLowerCase()
 																.includes(
 																	(
-																		stationObject.station.station_name || ""
+																		stationObject?.station?.station_name || ""
 																	).toLowerCase(),
 																),
 														)
 														.map((station, idx) => (
-															<option key={idx} value={station.station_name}>
+															<option key={idx} value={station?.station_name}>
 																{station.crs_code}
 															</option>
 														))}
