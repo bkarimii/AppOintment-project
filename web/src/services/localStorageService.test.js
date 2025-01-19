@@ -27,7 +27,7 @@ describe("LocalStorageService", () => {
 	});
 
 	const defaultMeetingStructure = {
-		version: "1.0.1",
+		version: "1.1.1",
 		copyOfMeetingStations: [{ station: { station_name: "", crs_code: "" } }],
 		meetingDate: "",
 		earliestStartTime: "",
@@ -37,6 +37,7 @@ describe("LocalStorageService", () => {
 			{ name: "", station: "" },
 		],
 		intervalTime: 20,
+		userTimeZone: "",
 	};
 
 	describe("getLocalStorage", () => {
@@ -63,7 +64,7 @@ describe("LocalStorageService", () => {
 			localStorageMock.getItem.mockReturnValue(JSON.stringify(oldData));
 
 			const result = getLocalStorage();
-			expect(result.version).toBe("1.0.1");
+			expect(result.version).toBe("1.1.1");
 			expect(result.meetingDate).toBe("2025-01-18");
 		});
 	});
@@ -78,7 +79,7 @@ describe("LocalStorageService", () => {
 			setLocalStorage(newData);
 
 			const savedData = JSON.parse(localStorageMock.setItem.mock.calls[0][1]);
-			expect(savedData["1.0.1"]).toEqual(newData);
+			expect(savedData["1.1.1"]).toEqual(newData);
 		});
 
 		it("should reject data with incorrect version", () => {
@@ -121,7 +122,7 @@ describe("LocalStorageService", () => {
 			};
 
 			const result = migrateMeetingData(oldData, defaultMeetingStructure);
-			expect(result.version).toBe("1.0.1");
+			expect(result.version).toBe("1.1.1");
 			expect(result.meetingDate).toBe("2025-01-18");
 			expect(result.customField).toBe("value");
 		});
@@ -133,7 +134,7 @@ describe("LocalStorageService", () => {
 			};
 
 			const result = migrateMeetingData(oldData, defaultMeetingStructure);
-			expect(result.version).toBe("1.0.1");
+			expect(result.version).toBe("1.1.1");
 			expect(result.meetingDate).toBe("2025-01-18");
 		});
 
