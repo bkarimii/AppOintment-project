@@ -9,6 +9,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 
+import { getLocalStorage } from "../services/localStorageService";
+
 import { ReportMaker } from "./ReportMaker";
 import Visualise from "./Visualise";
 import "./DisplayComponent.css";
@@ -145,7 +147,8 @@ function DisplayTravelResults() {
 	const fetchTravelData = async (URL) => {
 		setLoading(true);
 		try {
-			const bodyData = localStorage.getItem("newMeetingData v2");
+
+			const bodyData = JSON.stringify(getLocalStorage());
 
 			const response = await fetch(URL, {
 				method: "POST",

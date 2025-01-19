@@ -1,41 +1,23 @@
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { isArray } from "chart.js/helpers";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import "./NewMeeting.css";
 import { useNavigate } from "react-router-dom";
 
+import {
+	getLocalStorage,
+	setLocalStorage,
+} from "../services/localStorageService.js";
+
 function NewMeeting() {
 	const [stations, setStations] = useState([]);
 	const [helpIconToggle, setHelpIconToggle] = useState(false);
-	const [formData, setFormData] = useState(() => {
-		const savedData = JSON.parse(localStorage.getItem("newMeetingData v2"));
-		if (savedData) {
-			if (!isArray(savedData.copyOfMeetingStations)) {
-				savedData.copyOfMeetingStations = [
-					{ station: savedData.copyOfMeetingStations },
-				];
-			}
-			if (!isArray(savedData.attendees)) {
-				savedData.attendees = [{ name: "", station: "" }];
-			}
-		}
-		return (
-			savedData || {
-				copyOfMeetingStations: [{ station: "" }],
-				meetingDate: "",
-				earliestStartTime: "",
-				latestStartTime: "",
-				attendees: [{ name: "", station: "" }],
-				intervalTime: 20,
-				userTimeZone: "",
-			}
-		);
-	});
+
+	const [formData, setFormData] = useState(() => getLocalStorage());
 
 	const [copyOfMeetingStations, setCopyOfMeetingStations] = useState(
-		formData.copyOfMeetingStations || [{ station: { station_name: "" } }],
+		formData.copyOfMeetingStations,
 	);
 	const [meetingDate, setMeetingDate] = useState(formData.meetingDate);
 	const [earliestStartTime, setEarliestStartTime] = useState(
@@ -50,6 +32,8 @@ function NewMeeting() {
 	const [attendeeInputValues, setAttendeeInputValues] = useState(
 		formData.attendees.map(() => ""),
 	);
+
+	const version = formData.version;
 
 	const [filteredAttendeeStations, setFilteredAttendeeStations] = useState(
 		formData.attendees.map(() => []),
@@ -86,7 +70,9 @@ function NewMeeting() {
 				latestStartTime,
 				attendees,
 				intervalTime,
+				version,
 				userTimeZone,
+
 			});
 		};
 		updateFormData();
@@ -97,13 +83,12 @@ function NewMeeting() {
 		latestStartTime,
 		attendees,
 		intervalTime,
-		userTimeZone,
+		version,
+    userTimeZone,
 	]);
 
 	useEffect(() => {
-		document.title = "ThisAppointment";
-		localStorage.setItem("newMeetingData v2", JSON.stringify(formData));
-		console.log(formData, "<------Form data");
+		setLocalStorage(formData);
 	}, [formData]);
 
 	const handleMeetingChange = (field, value) => {
@@ -328,7 +313,7 @@ function NewMeeting() {
 										e.preventDefault();
 										setCopyOfMeetingStations([
 											...copyOfMeetingStations,
-											{ station: { station_name: "" } },
+											{ station: { station_name: "", crs_code: "" } },
 										]);
 									}}
 									aria-label="Add station"
