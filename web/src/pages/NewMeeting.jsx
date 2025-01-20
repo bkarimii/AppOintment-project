@@ -117,6 +117,19 @@ function NewMeeting() {
 			updatedAttendees[index][field] = value;
 			setAttendees(updatedAttendees);
 		} else if (field === "station") {
+			// ======= Validation: Check if the station matches any meeting station =======
+			const isMeetingStation = copyOfMeetingStations.some(
+				(meetingStation) =>
+					meetingStation.station.station_name.toLowerCase() ===
+					value.toLowerCase(),
+			);
+
+			if (isMeetingStation) {
+				alert("An attendee's station cannot be the same as a meeting station.");
+				return; // Stop further processing
+			}
+			// ======= End of added validation =======
+			// Update the input value
 			const updatedInputValues = [...attendeeInputValues];
 			updatedInputValues[index] = value;
 			setAttendeeInputValues(updatedInputValues);
