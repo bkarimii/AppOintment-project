@@ -214,6 +214,7 @@ function NewMeeting() {
 														} else {
 															updatedStations[index].station = {
 																station_name: value,
+																crs_code: "",
 															};
 														}
 														setCopyOfMeetingStations(updatedStations);
