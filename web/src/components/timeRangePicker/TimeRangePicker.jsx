@@ -9,6 +9,7 @@ const TimeRangePicker = ({
 	earliestStartTime,
 	latestStartTime,
 	handleMeetingChange,
+	setValidated,
 }) => {
 	const [earliest, setEarliest] = useState(earliestStartTime || "");
 	const [latest, setLatest] = useState(latestStartTime || "");
@@ -22,78 +23,55 @@ const TimeRangePicker = ({
 	]);
 
 	useEffect(() => {
-		if (latest) {
-			if (isValidInterval(earliest, latest)) {
-				memoizedHandleMeetingChange("earliestStartTime", earliest);
-				memoizedHandleMeetingChange("latestStartTime", latest);
-				setInvalid(false);
-			} else if (earliest) {
-				memoizedHandleMeetingChange("earliestStartTime", "");
-				setInvalid({
-					status: true,
-					place: "earliest",
-					message: "Earliest time cannot be after latest time",
-				});
-			} else {
-				setInvalid(false);
-			}
+		memoizedHandleMeetingChange("earliestStartTime", earliest);
+		memoizedHandleMeetingChange("latestStartTime", latest);
+
+		if (earliest && latest && isValidInterval(earliest, latest)) {
+			setInvalid({ status: false });
 		} else {
-			setInvalid(false);
-			memoizedHandleMeetingChange("earliestStartTime", earliest);
+			setInvalid({ status: true });
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [earliest]);
+	}, [earliest, latest, memoizedHandleMeetingChange]);
 
 	useEffect(() => {
-		if (earliest) {
-			if (isValidInterval(earliest, latest)) {
-				memoizedHandleMeetingChange("earliestStartTime", earliest);
-				memoizedHandleMeetingChange("latestStartTime", latest);
-				setInvalid(false);
-			} else if (latest) {
-				memoizedHandleMeetingChange("latestStartTime", "");
-				setInvalid({
-					status: true,
-					place: "latest",
-					message: "Latest time cannot be before earliest time",
-				});
-			} else {
-				setInvalid(false);
-			}
-		} else {
-			setInvalid(false);
-			memoizedHandleMeetingChange("latestStartTime", latest);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [latest]);
-
-	function handleTimePickerChange(pickerType, value) {
-		switch (pickerType) {
-			case "earliestStartTime":
-				setEarliest(value);
-				break;
-			case "latestStartTime":
-				setLatest(value);
-				break;
-		}
-	}
+		setValidated((prev) => {
+			return prev.timeRange !== !invalid.status
+				? { ...prev, timeRange: !invalid.status }
+				: prev;
+		});
+	}, [invalid, setValidated]);
 
 	function handleInvalidInput(e) {
-		if (!earliest) {
+		e.preventDefault();
+		e.target.setCustomValidity("");
+
+		if (!earliest && !latest) {
+			setInvalid({
+				status: true,
+				place: "interval",
+				message: "Please enter a valid time",
+			});
+		} else if (!earliest) {
 			setInvalid({
 				status: true,
 				place: "earliest",
 				message: "Please enter a valid time",
 			});
+			return;
 		} else if (!latest) {
 			setInvalid({
 				status: true,
 				place: "latest",
 				message: "Please enter a valid time",
 			});
+			return;
+		} else if (!isValidInterval(earliest, latest)) {
+			setInvalid({
+				status: true,
+				place: "interval",
+				message: "Latest time can not be before earliest time",
+			});
 		}
-		e.preventDefault();
-		e.target.setCustomValidity("");
 	}
 
 	return (
@@ -102,7 +80,12 @@ const TimeRangePicker = ({
 				<div className="form-group">
 					<input
 						className={
-							"time-picker" + (invalid.place === "earliest" ? " invalid" : "")
+							"time-picker" +
+							(invalid.place === "earliest"
+								? " invalid"
+								: invalid.place === "interval"
+									? " invalid"
+									: "")
 						}
 						type="time"
 						id="earliest-start-time"
@@ -110,15 +93,19 @@ const TimeRangePicker = ({
 						required
 						max={latest}
 						value={earliest}
-						onChange={(e) =>
-							handleTimePickerChange("earliestStartTime", e.target.value)
-						}
+						onChange={(e) => setEarliest(e.target.value || "")}
 						aria-required="true"
 						onInvalid={handleInvalidInput}
 					/>
 					<label
 						htmlFor="earliest-start-time"
-						className={invalid.place === "earliest" ? "invalid" : ""}
+						className={
+							invalid.place === "earliest"
+								? " invalid"
+								: invalid.place === "interval"
+									? " invalid"
+									: ""
+						}
 					>
 						Earliest Start Time
 					</label>
@@ -129,7 +116,12 @@ const TimeRangePicker = ({
 				<div className="form-group">
 					<input
 						className={
-							"time-picker" + (invalid.place === "latest" ? " invalid" : "")
+							"time-picker" +
+							(invalid.place === "latest"
+								? " invalid"
+								: invalid.place === "interval"
+									? " invalid"
+									: "")
 						}
 						type="time"
 						id="latest-start-time"
@@ -137,15 +129,19 @@ const TimeRangePicker = ({
 						required
 						min={earliest}
 						value={latest}
-						onChange={(e) =>
-							handleTimePickerChange("latestStartTime", e.target.value)
-						}
+						onChange={(e) => setLatest(e.target.value || "")}
 						aria-required="true"
 						onInvalid={handleInvalidInput}
 					/>
 					<label
 						htmlFor="latest-start-time"
-						className={invalid.place === "latest" ? "invalid" : ""}
+						className={
+							invalid.place === "latest"
+								? " invalid"
+								: invalid.place === "interval"
+									? " invalid"
+									: ""
+						}
 					>
 						Latest Start Time
 					</label>
@@ -161,6 +157,7 @@ const TimeRangePicker = ({
 TimeRangePicker.propTypes = {
 	earliestStartTime: PropTypes.string.isRequired,
 	latestStartTime: PropTypes.string.isRequired,
+	setValidated: PropTypes.func.isRequired,
 	handleMeetingChange: PropTypes.func.isRequired,
 };
 
