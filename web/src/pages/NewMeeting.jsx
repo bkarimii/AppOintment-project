@@ -44,6 +44,8 @@ function NewMeeting() {
 
 	const navigate = useNavigate();
 
+	const [validated, setValidated] = useState({ init: true });
+
 	useEffect(() => {
 		fetch("/api/station-list")
 			.then((response) => response.json())
@@ -348,6 +350,7 @@ function NewMeeting() {
 							earliestStartTime={earliestStartTime}
 							latestStartTime={latestStartTime}
 							handleMeetingChange={handleMeetingChange}
+							setValidated={setValidated}
 						/>
 
 						<h3 className="form-header">Who is coming?</h3>
@@ -485,6 +488,11 @@ function NewMeeting() {
 							type="submit"
 							aria-label="Submit meeting details"
 							name="submit"
+							className={
+								Object.values(validated).every((x) => x === true)
+									? "validated"
+									: "not-validated"
+							}
 						>
 							Submit
 						</button>
