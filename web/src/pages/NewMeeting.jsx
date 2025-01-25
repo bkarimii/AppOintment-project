@@ -100,7 +100,6 @@ function NewMeeting() {
 	useEffect(() => {
 		document.title = "ThisAppointment";
 		localStorage.setItem("newMeetingData", JSON.stringify(formData));
-		console.log(formData, "<------Form data");
 	}, [formData]);
 
 	const handleMeetingChange = (field, value) => {

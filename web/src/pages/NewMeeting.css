@@ -105,7 +105,6 @@ label {
 .form-group input:focus ~ label,
 .form-group select:focus ~ label {
 	transform: translate(-10px, -50%) scale(0.85);
-	background-color: white;
 	padding: 0 5px;
 	color: #646cff;
 }
