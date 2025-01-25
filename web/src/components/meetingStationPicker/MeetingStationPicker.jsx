@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { useEffect, useMemo, useState } from "react";
 
 import DeleteIcon from "../deleteIcon/DeleteIcon";
 
@@ -8,62 +9,76 @@ const MeetingStationPicker = ({
 	stations,
 	copyOfMeetingStations,
 	setCopyOfMeetingStations,
-	// setValidated,
 }) => {
-	// const [invalid, setInvalid] = useState({
-	// 	status: false,
-	// 	place: "",
-	// 	message: "",
-	// });
+	const [invalid, setInvalid] = useState({
+		status: {},
+		place: {},
+		message: "Invalid station name",
+	});
 
-	// useEffect(() => {
-	// 	setValidated((prev) => {
-	// 		return prev.timeRange !== !invalid.status
-	// 			? { ...prev, timeRange: !invalid.status }
-	// 			: prev;
-	// 	});
-	// }, [invalid, setValidated]);
+	useEffect(() => {
+		// const updatedInvalid = { ...invalid };
+		// const updatedInvalidPlace = updatedInvalid.place;
 
-	const deleteStation = (e, index) => {
+		copyOfMeetingStations.map((input, index) => {
+			let place = {};
+			const exactMatch = stations.find(
+				(station) => station.station_name === input.station.station_name,
+			);
+
+			if (exactMatch) {
+				// updatedInvalidPlace[index] = false;
+				place[index] = false;
+			} else {
+				// updatedInvalidPlace[index] = true;
+				place[index] = true;
+			}
+
+			if (input.station.station_name === "" || exactMatch) {
+				setInvalid((prevState) => ({
+					...prevState,
+					status: { ...prevState.status, [index]: false },
+				}));
+			}
+			setInvalid((prevInvalid) => ({
+				...prevInvalid,
+				place: { ...prevInvalid.place, place },
+			}));
+		});
+
+		// setInvalid((prevInvalid) => ({
+		// 	...prevInvalid,
+		// 	place: updatedInvalidPlace,
+		// }));
+	}, [copyOfMeetingStations, stations]);
+
+	const stationRegex = useMemo(() => {
+		const stationNames = stations.map((station) => station.station_name);
+		const escapedStationNames = stationNames.map((name) =>
+			name.replace(/[.*+?^=!:${}()|[\]/\\]/g, "\\$&"),
+		);
+		const pattern = `^(${escapedStationNames.join("|")})$`;
+		return pattern;
+	}, [stations]);
+
+	function deleteStation(e, index) {
 		e.preventDefault();
 		const updatedMeetingStations = copyOfMeetingStations.filter(
 			(_, i) => i !== index,
 		);
 		setCopyOfMeetingStations(updatedMeetingStations);
-	};
+	}
 
-	// function handleInvalidInput(e) {
-	// 	e.preventDefault();
-	// 	e.target.setCustomValidity("");
+	function handleInvalidInput(e, index) {
+		e.preventDefault();
+		e.target.setCustomValidity("");
 
-	// 	if (!earliest && !latest) {
-	// 		setInvalid({
-	// 			status: true,
-	// 			place: "interval",
-	// 			message: "Please enter a valid time",
-	// 		});
-	// 	} else if (!earliest) {
-	// 		setInvalid({
-	// 			status: true,
-	// 			place: "earliest",
-	// 			message: "Please enter a valid time",
-	// 		});
-	// 		return;
-	// 	} else if (!latest) {
-	// 		setInvalid({
-	// 			status: true,
-	// 			place: "latest",
-	// 			message: "Please enter a valid time",
-	// 		});
-	// 		return;
-	// 	} else if (!isValidInterval(earliest, latest)) {
-	// 		setInvalid({
-	// 			status: true,
-	// 			place: "interval",
-	// 			message: "Latest time can not be before earliest time",
-	// 		});
-	// 	}
-	// }
+		setInvalid((prevState) => ({
+			...prevState,
+			status: { ...prevState.status, [index]: true },
+			place: { ...prevState.place, [index]: true },
+		}));
+	}
 	return (
 		<>
 			<div className="form-group">
@@ -71,14 +86,20 @@ const MeetingStationPicker = ({
 					Meeting Station List
 				</label>
 				<div id="input-box-container" style={{ marginBottom: "1rem" }}>
-					<ul id="stn-list">
+					<ul id="stn-list" style={{ position: "relative" }}>
 						{copyOfMeetingStations.map((stationObject, index) => (
 							<li className="meeting-list-item" key={index}>
 								<div className="form-group station-input-group">
 									<input
 										type="text"
 										id={`meeting-station-input-${index}`}
-										className={"meeting-station-picker" + " invalid"}
+										className={
+											"meeting-station-picker" +
+											(invalid.status[index] === true &&
+											invalid.place[index] === true
+												? " invalid"
+												: "")
+										}
 										value={stationObject?.station?.station_name || ""}
 										onChange={(e) => {
 											const value = e.target.value;
@@ -94,12 +115,16 @@ const MeetingStationPicker = ({
 													station_name: value,
 												};
 											}
+											setInvalid((prevState) => ({
+												...prevState,
+												status: { ...prevState.status, [index]: false },
+											}));
 											setCopyOfMeetingStations(updatedStations);
 										}}
 										list={`meeting-stations-list-${index}`}
 										placeholder=" "
-										required
-										// onInvalid={handleInvalidInput}
+										pattern={stationRegex}
+										onInvalid={(e) => handleInvalidInput(e, index)}
 									/>
 									<datalist id={`meeting-stations-list-${index}`}>
 										{stations
@@ -118,7 +143,15 @@ const MeetingStationPicker = ({
 												</option>
 											))}
 									</datalist>
-									<label htmlFor={`meeting-station-input-${index}`}>
+									<label
+										htmlFor={`meeting-station-input-${index}`}
+										className={
+											invalid.status[index] === true &&
+											invalid.place[index] === true
+												? "invalid"
+												: ""
+										}
+									>
 										Meeting Station {index + 1}
 									</label>
 								</div>
@@ -132,6 +165,10 @@ const MeetingStationPicker = ({
 								</button>
 							</li>
 						))}
+						{Object.keys(invalid.place).some(
+							(index) =>
+								invalid.status[index] === true && invalid.place[index] === true,
+						) && <div className="error-message">{invalid.message}</div>}
 					</ul>
 
 					<button
@@ -151,9 +188,6 @@ const MeetingStationPicker = ({
 						Station
 					</button>
 				</div>
-				{/* {invalid.status && ( */}
-				{/* <div className="error-message">{invalid.message}</div> */}
-				{/* )} */}
 			</div>
 		</>
 	);
