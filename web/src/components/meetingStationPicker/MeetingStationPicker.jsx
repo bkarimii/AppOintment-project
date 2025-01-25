@@ -2,11 +2,28 @@ import PropTypes from "prop-types";
 
 import DeleteIcon from "../deleteIcon/DeleteIcon";
 
+import "./MeetingStationPicker.css";
+
 const MeetingStationPicker = ({
 	stations,
 	copyOfMeetingStations,
 	setCopyOfMeetingStations,
+	// setValidated,
 }) => {
+	// const [invalid, setInvalid] = useState({
+	// 	status: false,
+	// 	place: "",
+	// 	message: "",
+	// });
+
+	// useEffect(() => {
+	// 	setValidated((prev) => {
+	// 		return prev.timeRange !== !invalid.status
+	// 			? { ...prev, timeRange: !invalid.status }
+	// 			: prev;
+	// 	});
+	// }, [invalid, setValidated]);
+
 	const deleteStation = (e, index) => {
 		e.preventDefault();
 		const updatedMeetingStations = copyOfMeetingStations.filter(
@@ -14,6 +31,39 @@ const MeetingStationPicker = ({
 		);
 		setCopyOfMeetingStations(updatedMeetingStations);
 	};
+
+	// function handleInvalidInput(e) {
+	// 	e.preventDefault();
+	// 	e.target.setCustomValidity("");
+
+	// 	if (!earliest && !latest) {
+	// 		setInvalid({
+	// 			status: true,
+	// 			place: "interval",
+	// 			message: "Please enter a valid time",
+	// 		});
+	// 	} else if (!earliest) {
+	// 		setInvalid({
+	// 			status: true,
+	// 			place: "earliest",
+	// 			message: "Please enter a valid time",
+	// 		});
+	// 		return;
+	// 	} else if (!latest) {
+	// 		setInvalid({
+	// 			status: true,
+	// 			place: "latest",
+	// 			message: "Please enter a valid time",
+	// 		});
+	// 		return;
+	// 	} else if (!isValidInterval(earliest, latest)) {
+	// 		setInvalid({
+	// 			status: true,
+	// 			place: "interval",
+	// 			message: "Latest time can not be before earliest time",
+	// 		});
+	// 	}
+	// }
 	return (
 		<>
 			<div className="form-group">
@@ -48,6 +98,7 @@ const MeetingStationPicker = ({
 										list={`meeting-stations-list-${index}`}
 										placeholder=" "
 										required
+										// onInvalid={handleInvalidInput}
 									/>
 									<datalist id={`meeting-stations-list-${index}`}>
 										{stations
@@ -99,6 +150,9 @@ const MeetingStationPicker = ({
 						Station
 					</button>
 				</div>
+				{/* {invalid.status && ( */}
+				{/* <div className="error-message">{invalid.message}</div> */}
+				{/* )} */}
 			</div>
 		</>
 	);
