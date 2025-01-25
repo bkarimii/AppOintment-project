@@ -13,13 +13,10 @@ const MeetingStationPicker = ({
 	const [invalid, setInvalid] = useState({
 		status: {},
 		place: {},
-		message: "Invalid station name",
+		message: "Please enter a valid station name",
 	});
 
 	useEffect(() => {
-		// const updatedInvalid = { ...invalid };
-		// const updatedInvalidPlace = updatedInvalid.place;
-
 		copyOfMeetingStations.map((input, index) => {
 			let place = {};
 			const exactMatch = stations.find(
@@ -27,10 +24,8 @@ const MeetingStationPicker = ({
 			);
 
 			if (exactMatch) {
-				// updatedInvalidPlace[index] = false;
 				place[index] = false;
 			} else {
-				// updatedInvalidPlace[index] = true;
 				place[index] = true;
 			}
 
@@ -45,11 +40,6 @@ const MeetingStationPicker = ({
 				place: { ...prevInvalid.place, place },
 			}));
 		});
-
-		// setInvalid((prevInvalid) => ({
-		// 	...prevInvalid,
-		// 	place: updatedInvalidPlace,
-		// }));
 	}, [copyOfMeetingStations, stations]);
 
 	const stationRegex = useMemo(() => {
