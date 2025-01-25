@@ -78,6 +78,7 @@ const MeetingStationPicker = ({
 									<input
 										type="text"
 										id={`meeting-station-input-${index}`}
+										className={"meeting-station-picker" + " invalid"}
 										value={stationObject?.station?.station_name || ""}
 										onChange={(e) => {
 											const value = e.target.value;
