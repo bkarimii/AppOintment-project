@@ -78,7 +78,7 @@ const MeetingStationPicker = ({
 		e.target.setCustomValidity("");
 
 		const regexp = new RegExp(stationRegex);
-		if (regexp.test(e.target.value)) return;
+		if (regexp.test(e.target.value) || e.target.value === "") return;
 
 		setInvalid((prevState) => ({
 			...prevState,
