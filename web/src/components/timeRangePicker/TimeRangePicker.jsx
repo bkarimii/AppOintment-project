@@ -96,6 +96,7 @@ const TimeRangePicker = ({
 						onChange={(e) => setEarliest(e.target.value || "")}
 						aria-required="true"
 						onInvalid={handleInvalidInput}
+						onBlur={handleInvalidInput}
 					/>
 					<label
 						htmlFor="earliest-start-time"
@@ -132,6 +133,7 @@ const TimeRangePicker = ({
 						onChange={(e) => setLatest(e.target.value || "")}
 						aria-required="true"
 						onInvalid={handleInvalidInput}
+						onBlur={handleInvalidInput}
 					/>
 					<label
 						htmlFor="latest-start-time"
