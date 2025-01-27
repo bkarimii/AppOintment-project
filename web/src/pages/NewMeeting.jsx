@@ -58,6 +58,8 @@ function NewMeeting() {
 
 	const navigate = useNavigate();
 
+	const [validated, setValidated] = useState({ init: true });
+
 	useEffect(() => {
 		fetch("/api/station-list")
 			.then((response) => response.json())
@@ -207,6 +209,7 @@ function NewMeeting() {
 							stations={stations}
 							copyOfMeetingStations={copyOfMeetingStations}
 							setCopyOfMeetingStations={setCopyOfMeetingStations}
+							setValidated={setValidated}
 						/>
 
 						<div className="form-group">
@@ -394,6 +397,11 @@ function NewMeeting() {
 							type="submit"
 							aria-label="Submit meeting details"
 							name="submit"
+							className={
+								Object.values(validated).every((x) => x === true)
+									? "validated"
+									: "not-validated"
+							}
 						>
 							Submit
 						</button>

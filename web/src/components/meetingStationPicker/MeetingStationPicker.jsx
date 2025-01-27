@@ -9,6 +9,7 @@ const MeetingStationPicker = ({
 	stations,
 	copyOfMeetingStations,
 	setCopyOfMeetingStations,
+	setValidated,
 }) => {
 	const [invalid, setInvalid] = useState({
 		status: {},
@@ -37,10 +38,23 @@ const MeetingStationPicker = ({
 			}
 			setInvalid((prevInvalid) => ({
 				...prevInvalid,
-				place: { ...prevInvalid.place, place },
+				place: { ...prevInvalid.place, ...place },
 			}));
 		});
 	}, [copyOfMeetingStations, stations]);
+
+	useEffect(() => {
+		setValidated((prev) => {
+			if (
+				Object.values(invalid.status).every((value) => value === false) &&
+				Object.values(invalid.place).every((value) => value === false)
+			) {
+				return { ...prev, meetingStation: true };
+			} else {
+				return { ...prev, meetingStation: false };
+			}
+		});
+	}, [invalid, setValidated]);
 
 	const stationRegex = useMemo(() => {
 		const stationNames = stations.map((station) => station.station_name);
@@ -191,6 +205,7 @@ MeetingStationPicker.propTypes = {
 	stations: PropTypes.array.isRequired,
 	copyOfMeetingStations: PropTypes.array.isRequired,
 	setCopyOfMeetingStations: PropTypes.func.isRequired,
+	setValidated: PropTypes.func.isRequired,
 };
 
 export default MeetingStationPicker;
