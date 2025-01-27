@@ -63,6 +63,9 @@ const MeetingStationPicker = ({
 		e.preventDefault();
 		e.target.setCustomValidity("");
 
+		const regexp = new RegExp(stationRegex);
+		if (regexp.test(e.target.value)) return;
+
 		setInvalid((prevState) => ({
 			...prevState,
 			status: { ...prevState.status, [index]: true },
@@ -115,6 +118,7 @@ const MeetingStationPicker = ({
 										placeholder=" "
 										pattern={stationRegex}
 										onInvalid={(e) => handleInvalidInput(e, index)}
+										onBlur={(e) => handleInvalidInput(e, index)}
 									/>
 									<datalist id={`meeting-stations-list-${index}`}>
 										{stations
