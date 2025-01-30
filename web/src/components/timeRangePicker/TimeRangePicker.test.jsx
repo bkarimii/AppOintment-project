@@ -17,6 +17,7 @@ describe("TimeRangePicker Component", () => {
 				earliestStartTime="09:00"
 				latestStartTime="17:00"
 				handleMeetingChange={handleMeetingChangeMock}
+				setValidated={vi.fn()}
 			/>,
 		);
 
@@ -31,6 +32,7 @@ describe("TimeRangePicker Component", () => {
 				earliestStartTime="09:00"
 				latestStartTime="17:00"
 				handleMeetingChange={handleMeetingChangeMock}
+				setValidated={vi.fn()}
 			/>,
 		);
 
@@ -47,6 +49,7 @@ describe("TimeRangePicker Component", () => {
 				earliestStartTime="09:00"
 				latestStartTime="17:00"
 				handleMeetingChange={handleMeetingChangeMock}
+				setValidated={vi.fn()}
 			/>,
 		);
 
@@ -65,6 +68,7 @@ describe("TimeRangePicker Component", () => {
 				earliestStartTime="09:00"
 				latestStartTime="17:00"
 				handleMeetingChange={handleMeetingChangeMock}
+				setValidated={vi.fn()}
 			/>,
 		);
 
@@ -83,6 +87,7 @@ describe("TimeRangePicker Component", () => {
 				earliestStartTime="09:00"
 				latestStartTime="17:00"
 				handleMeetingChange={handleMeetingChangeMock}
+				setValidated={vi.fn()}
 			/>,
 		);
 
