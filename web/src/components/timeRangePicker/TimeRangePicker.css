@@ -1,0 +1,23 @@
+.time-picker.invalid {
+	border-color: red;
+}
+
+.time-picker.invalid:focus {
+	border-color: red;
+}
+label.invalid {
+	color: red !important;
+}
+
+input:focus:after {
+	display: none;
+}
+
+.error-message {
+	position: absolute;
+	bottom: -20px;
+	left: 0;
+	color: red;
+	font-size: 0.8rem;
+	width: 100%;
+}
