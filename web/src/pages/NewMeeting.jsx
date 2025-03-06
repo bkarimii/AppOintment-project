@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import "./NewMeeting.css";
 import { useNavigate } from "react-router-dom";
 
+import DeleteButton from "../components/deleteButton/DeleteButton.jsx";
 import {
 	getLocalStorage,
 	setLocalStorage,
@@ -242,7 +243,7 @@ function NewMeeting() {
 													Meeting Station {index + 1}
 												</label>
 											</div>
-											<button
+											{/* <button
 												onClick={(e) => deleteStation(e, index)}
 												className="delete-button"
 												aria-label={`Delete station ${index + 1}`}
@@ -300,7 +301,12 @@ function NewMeeting() {
 														fill="white"
 													/>
 												</svg>
-											</button>
+											</button> */}
+											<DeleteButton
+												index={index}
+												deleteFn={deleteStation}
+												attendee={false}
+											/>
 										</li>
 									))}
 								</ul>
@@ -428,7 +434,12 @@ function NewMeeting() {
 													Station
 												</label>
 											</div>
-											<button
+											<DeleteButton
+												index={index}
+												deleteFn={deleteAttendee}
+												attendee={attendee}
+											/>
+											{/* <button
 												className="delete-button"
 												onClick={deleteAttendee(index)}
 												aria-label={`Remove ${attendee.name} from attendee list`}
@@ -487,7 +498,7 @@ function NewMeeting() {
 														fill="white"
 													/>
 												</svg>
-											</button>
+											</button> */}
 										</li>
 									))}
 								</ul>
