@@ -299,3 +299,15 @@ form {
 	gap: 5px;
 	border-radius: 8px;
 }
+
+.not-validated:hover {
+	background-color: #b32d3a !important;
+}
+
+.validated {
+	background-color: #535bf2 !important;
+}
+
+.validated:hover {
+	background-color: #169000 !important;
+}
