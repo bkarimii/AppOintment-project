@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: testdb
+      POSTGRES_PASSWORD: keepitsecret
+      POSTGRES_DB: appointment
+    ports:
+      - "5433:5432" # Changed from 5432:5432 to use port 5433 on host
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3100:80"
+    environment:
+      - NODE_ENV=development # Changed from production to development
+      - DATABASE_URL=postgres://testdb:keepitsecret@postgres:5432/appointment?sslmode=disable
+      - GOOGLE_MAPS_API_KEY_TWO=${GOOGLE_MAPS_API_KEY_TWO}
+      - USE_LIVE_DATA=${USE_LIVE_DATA}
+      - PORT=80
+      - DISABLE_HTTPS=true # Added to explicitly disable HTTPS enforcement
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

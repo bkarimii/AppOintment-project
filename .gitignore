@@ -10,3 +10,4 @@ reports/
 api/migrations/config.json
 web/public/buildinfo.txt
 .env
+docker.env
